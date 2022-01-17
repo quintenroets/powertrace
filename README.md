@@ -1,0 +1,27 @@
+# Traceback handler
+
+Handle all errors in your python scripts:
+* Show in extended and easily readably format
+* Open new terminal tab if script is running without terminal
+* Developed for Linux OS where konsole application is available
+
+## Installation
+
+```shell
+pip install git+https://github.com/quintenroets/tracebackhandler
+```
+
+If this does not work, try:
+
+```shell
+sudo pip install git+https://github.com/quintenroets/tracebackhandler
+```
+
+to overwrite any existing traceback handlers
+
+Or use the manual installation of the tbhandler in each of your scripts
+
+```shell
+import tbhandler
+tbhandler.install()
+```

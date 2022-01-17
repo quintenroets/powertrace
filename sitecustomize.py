@@ -1,0 +1,3 @@
+import tbhandler
+
+tbhandler.install()
