@@ -1,8 +1,8 @@
 # Traceback handler
 
-Handle all errors in your python scripts:
-* Show in extended and easily readably format
-* Open new terminal tab if script is running without terminal
+Module to notify user of errors in all scripts, even when they run without terminal
+* Traceback message in extended and easily readably format
+* Open message in new terminal tab if script is running without terminal
 * Developed for Linux OS where konsole application is available
 
 ## Installation
