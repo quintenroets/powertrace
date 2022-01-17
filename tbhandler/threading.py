@@ -5,7 +5,10 @@ from threading import * # Lock, .. for modules that use this module
 
 notify_mutex = Lock()
 
+
 class Thread(Thread):
+    handled = False
+    
     def __init__(self, target, *args, exit_on_error=True, **kwargs):
         self.exit_on_error = exit_on_error
         super(Thread, self).__init__(target=self.start_verbose, args=(target, *args), kwargs=(kwargs))
@@ -15,9 +18,11 @@ class Thread(Thread):
             target(*args, **kwargs)
         except:
             with notify_mutex:
-                tbhandler.show()
-                if self.exit_on_error:
-                    os._exit(0)
+                if not self.handled:
+                    self.handled = True
+                    tbhandler.show()
+                    if self.exit_on_error:
+                        os._exit(0)
 
     def start(self):
         super(Thread, self).start()
