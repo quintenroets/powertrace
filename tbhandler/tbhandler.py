@@ -19,7 +19,7 @@ def show(exc_type=None, exc_value=None, traceback=None):
 
     log_file = Path.assets / '.error.txt'
 
-    traceback = Traceback.from_exception(exc_type, exc_value, traceback) if exc_type else Traceback()
+    traceback = Traceback.from_exception(exc_type, exc_value, traceback, show_locals=True) if exc_type else Traceback()
     with log_file.open('w') as fp:
         console = Console(file=fp, record=True, force_terminal=True)
         console.print(traceback)
