@@ -1,12 +1,12 @@
 import os
 
 import tbhandler
-from threading import * # Lock, .. for modules that use this module
+import threading
 
-notify_mutex = Lock()
+notify_mutex = threading.Lock()
 
 
-class Thread(Thread):
+class Thread(threading.Thread):
     handled = False
     
     def __init__(self, target, *args, exit_on_error=True, **kwargs):
@@ -32,13 +32,12 @@ class Thread(Thread):
         super(Thread, self).join()
 
 
-
 class Threads:
-    def __init__(self, methods, *args, **kwargs):
-        if type(methods) == list:
-            self.threads = [Thread(m).start() for m in methods]
+    def __init__(self, method, *args, **kwargs):
+        if callable(method):
+            self.threads = [Thread(method, *arg, **kwargs).start() for arg in zip(*args)]
         else:
-            self.threads = [Thread(methods, *arg, **kwargs).start() for arg in zip(*args)]
+            self.threads = [Thread(m).start() for m in method]
 
     def join(self):
         for t in self.threads:
