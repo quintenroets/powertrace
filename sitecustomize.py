@@ -2,7 +2,7 @@ import sys
 
 """
 This file is executed before every script so performance is critical.
-Use lazy loading and installing to maximize performance.
+Lazily importing & installing limits overhead to nanosecond scale.
 """
 
 def excepthook(*args):
