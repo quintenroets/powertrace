@@ -1,5 +1,14 @@
 import sys
-import tbhandler
+
+"""
+This file is executed before every script so performance is critical.
+Use lazy loading and installing to maximize performance.
+"""
+
+def excepthook(*args):
+    import tbhandler
+    tbhandler.install()
+    sys.excepthook(*args)
 
 
 def displayhook(value):
@@ -10,5 +19,5 @@ def displayhook(value):
     sys.displayhook(value)
 
 
-tbhandler.install()
 sys.displayhook = displayhook
+sys.excepthook = excepthook
