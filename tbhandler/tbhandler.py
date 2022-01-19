@@ -19,7 +19,8 @@ def threading_excepthook(info):
 def excepthook(exc_type, exc_value, traceback):
     if exc_type not in (KeyboardInterrupt, SystemExit):
         with tb_mutex:
-            if not tbs_handled:  # only visualize the first traceback
+            # only visualize the first traceback for crashing threads
+            if not tbs_handled or threading.current_thread() is threading.main_thread():  
                 tbs_handled.add(traceback)
                 show(exc_type, exc_value, traceback)
 
@@ -39,7 +40,9 @@ def show(exc_type=None, exc_value=None, traceback=None, exit=True):
 
     process = cli.start(f'cat {log_file}; read', console=True)
     process.communicate()  # make sure opening cli has finished before exiting
-    if exit:
+    
+    if exit and threading.current_thread() is not threading.main_thread():
+        os._exit(1)  # force exit
         sys.exit(1)  # stop execution after error in threads as well
 
 

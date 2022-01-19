@@ -7,9 +7,29 @@ The hooks below are never called for most scripts, so we only install them when 
 Lazy importing & installing limits total overhead of this complete file to nanosecond scale.
 """
 
+
+sys_excepthook = sys.excepthook
+thread_excepthook = thread._excepthook
+
+
+def is_notebook():
+    try:
+        notebook = get_ipython().__class__.__name__ == 'ZMQInteractiveShell'
+    except NameError:
+        notebook = False
+    return notebook
+
+
 def install_tbhandler():
-    import tbhandler
-    tbhandler.install()
+    """
+    Reset to default excepthandlers when working in a notebook
+    """
+    if is_notebook():
+        sys.excepthook = sys_excepthook
+        thread._excepthook = thread_excepthook
+    else:
+        import tbhandler
+        tbhandler.install()
 
 
 def excepthook(*args):
