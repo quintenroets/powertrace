@@ -1,2 +1,2 @@
-from .tbhandler import errorhandler, install, show
+from .tbhandler import install, show
 from .threading import Thread, Threads

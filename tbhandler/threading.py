@@ -3,7 +3,6 @@ import os
 import tbhandler
 import threading
 
-notify_mutex = threading.Lock()
 
 
 class Thread(threading.Thread):

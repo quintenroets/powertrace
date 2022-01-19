@@ -1,23 +1,33 @@
 import sys
+import _thread as thread
 
 """
 This file is executed before every script so performance is critical.
-Lazily importing & installing limits overhead to nanosecond scale.
+The hooks below are never called for most scripts, so we only install them when they are needed. 
+Lazy importing & installing limits total overhead of this complete file to nanosecond scale.
 """
 
-def excepthook(*args):
+def install_tbhandler():
     import tbhandler
     tbhandler.install()
+
+
+def excepthook(*args):
+    install_tbhandler()
     sys.excepthook(*args)
 
 
+def threading_excepthook(*args):
+    install_tbhandler()
+    thread._excepthook(*args)
+
+
 def displayhook(value):
-    # only install after first display usage
-    # save startup time for scripts that dont use display
     from rich import pretty
     pretty.install()
     sys.displayhook(value)
 
 
-sys.displayhook = displayhook
 sys.excepthook = excepthook
+sys.displayhook = displayhook
+thread._excepthook = threading_excepthook
