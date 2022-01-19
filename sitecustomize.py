@@ -8,28 +8,9 @@ Lazy importing & installing limits total overhead of this complete file to nanos
 """
 
 
-sys_excepthook = sys.excepthook
-thread_excepthook = thread._excepthook
-
-
-def is_notebook():
-    try:
-        notebook = get_ipython().__class__.__name__ == 'ZMQInteractiveShell'
-    except NameError:
-        notebook = False
-    return notebook
-
-
 def install_tbhandler():
-    """
-    Reset to default excepthandlers when working in a notebook
-    """
-    if is_notebook():
-        sys.excepthook = sys_excepthook
-        thread._excepthook = thread_excepthook
-    else:
-        import tbhandler
-        tbhandler.install()
+    import tbhandler
+    tbhandler.install()
 
 
 def excepthook(*args):
@@ -48,6 +29,16 @@ def displayhook(value):
     sys.displayhook(value)
 
 
-sys.excepthook = excepthook
-sys.displayhook = displayhook
-thread._excepthook = threading_excepthook
+def is_notebook():
+    try:
+        notebook = get_ipython().__class__.__name__ == 'ZMQInteractiveShell'
+    except NameError:
+        notebook = False
+    return notebook
+
+
+#  Notebook setup is done in separate extension
+if not is_notebook():
+    sys.excepthook = excepthook
+    sys.displayhook = displayhook
+    thread._excepthook = threading_excepthook
