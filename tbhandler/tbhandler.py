@@ -1,4 +1,5 @@
 import cli
+import os
 import sys
 import _thread as thread
 import threading
@@ -39,6 +40,7 @@ def show(exc_type=None, exc_value=None, traceback=None, exit=True):
     process = cli.start(f'cat {log_file}; read', console=True)
     process.communicate()  # make sure opening cli has finished before exiting
     if exit:
+        os._exit(1)  # force exit needed
         sys.exit(1)  # stop execution after error in threads as well
 
 
