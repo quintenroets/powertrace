@@ -16,19 +16,18 @@ def threading_excepthook(info):
 
 
 def excepthook(exc_type, exc_value, traceback):
-    if exc_type != KeyboardInterrupt:
+    if exc_type not in (KeyboardInterrupt, SystemExit):
         with tb_mutex:
             if not tbs_handled:  # only visualize the first traceback
                 tbs_handled.add(traceback)
                 show(exc_type, exc_value, traceback)
 
 
-def show(exc_type=None, exc_value=None, traceback=None):
+def show(exc_type=None, exc_value=None, traceback=None, exit=True):
     """
-    most of the time no exception => save time by only importing on exception
+    Can be called on any given moment to visualize the current stack trace
+    param exit: stop execution after visualizing stack trace
     """
-
-
     log_file = Path.assets / '.error.txt'
 
     traceback = Traceback.from_exception(exc_type, exc_value, traceback, show_locals=True) if exc_type else Traceback()
@@ -39,7 +38,8 @@ def show(exc_type=None, exc_value=None, traceback=None):
 
     process = cli.start(f'cat {log_file}; read', console=True)
     process.communicate()  # make sure opening cli has finished before exiting
-    sys.exit(1)  # stop execution after error in threads as well
+    if exit:
+        sys.exit(1)  # stop execution after error in threads as well
 
 
 def install():

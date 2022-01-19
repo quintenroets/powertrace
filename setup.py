@@ -4,8 +4,8 @@ import subprocess
 from pathlib import Path
 from setuptools import setup, find_packages
 
-
 NAME = 'tbhandler'
+
 
 def read(filename):
     try:
@@ -51,6 +51,6 @@ setup(
     name=NAME,
     version='1.0',
     packages=find_packages(),
-	py_modules=[NAME, 'sitecustomize'],
+	py_modules=['sitecustomize'],
     install_requires=read('requirements.txt'),
 )
