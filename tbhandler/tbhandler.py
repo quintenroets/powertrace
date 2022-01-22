@@ -30,13 +30,13 @@ def show(exc_type=None, exc_value=None, traceback=None, exit=True):
     Can be called on any given moment to visualize the current stack trace
     param exit: stop execution after visualizing stack trace
     """
-    log_file = Path.assets / '.error.txt'
+    log_file = Path.assets / '.error_console.txt'
 
     traceback = Traceback.from_exception(exc_type, exc_value, traceback, show_locals=True) if exc_type else Traceback()
     with log_file.open('w') as fp:
         console = Console(file=fp, record=True, force_terminal=True)
         console.print(traceback)
-        console.save_text(log_file.with_stem('error'))
+        console.save_text(log_file.with_stem('.error'))
 
     process = cli.start(f'cat {log_file}; read', console=True)
     process.communicate()  # make sure opening cli has finished before exiting
