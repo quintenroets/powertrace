@@ -1,3 +1,4 @@
+import builtins
 import sys
 import _thread as thread
 
@@ -10,6 +11,7 @@ Lazy importing & installing limits total overhead of this complete file to nanos
 
 def install_tbhandler():
     import tbhandler
+
     tbhandler.install()
 
 
@@ -25,16 +27,24 @@ def threading_excepthook(*args):
 
 def displayhook(value):
     from rich import pretty
+
     pretty.install()
     sys.displayhook(value)
 
 
 def is_notebook():
     try:
-        notebook = get_ipython().__class__.__name__ == 'ZMQInteractiveShell'
+        notebook = get_ipython().__class__.__name__ == "ZMQInteractiveShell"
     except NameError:
         notebook = False
     return notebook
+
+
+def pprint(item):
+    from rich import pretty
+
+    builtins.pprint = pretty.pprint
+    builtins.pprint(item)
 
 
 #  Notebook setup is done in separate extension
@@ -42,3 +52,5 @@ if not is_notebook():
     sys.excepthook = excepthook
     sys.displayhook = displayhook
     thread._excepthook = threading_excepthook
+
+builtins.pprint = pprint  # only for quick debugging: always import properly in projects where it is used permanently
