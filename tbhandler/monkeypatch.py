@@ -1,5 +1,6 @@
 from rich.traceback import *
-    
+
+
 @group()
 def _render_stack(self, stack: Stack) -> RenderResult:
     path_highlighter = PathHighlighter()
@@ -17,9 +18,7 @@ def _render_stack(self, stack: Stack) -> RenderResult:
         """
         code = code_cache.get(filename)
         if code is None:
-            with open(
-                filename, "rt", encoding="utf-8", errors="replace"
-            ) as code_file:
+            with open(filename, "rt", encoding="utf-8", errors="replace") as code_file:
                 code = code_file.read()
             code_cache[filename] = code
         return code
@@ -68,14 +67,13 @@ def _render_stack(self, stack: Stack) -> RenderResult:
                 dedent=False,
             )
             yield ""
-            
-        
+
         except FileNotFoundError:
             """
             CHANGED BEHAVIOUR
             """
             if frame.locals:
-                if 'get_ipython' not in frame.locals:
+                if "get_ipython" not in frame.locals:
                     yield (
                         Columns(
                             [*render_locals(frame)],
@@ -86,8 +84,7 @@ def _render_stack(self, stack: Stack) -> RenderResult:
                 yield Text.assemble(
                     (f"\n{error}", "traceback.error"),
                 )
-                    
-        
+
         except Exception as error:
             yield Text.assemble(
                 (f"\n{error}", "traceback.error"),
@@ -105,5 +102,6 @@ def _render_stack(self, stack: Stack) -> RenderResult:
                 else syntax
             )
 
+
 def install():
-    Traceback._render_stack = _render_stack 
+    Traceback._render_stack = _render_stack

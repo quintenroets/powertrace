@@ -1,6 +1,8 @@
 import builtins
 import sys
+
 import _thread as thread
+
 
 """
 This file is executed before every script so performance is critical.

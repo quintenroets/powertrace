@@ -1,20 +1,20 @@
 import os
 import subprocess
-
 from pathlib import Path
-from setuptools import setup, find_packages
 
-NAME = 'tbhandler'
+from setuptools import find_packages, setup
+
+NAME = "tbhandler"
 
 
 def read(filename):
     try:
         with open(filename) as fp:
-            content = fp.read().split('\n')
+            content = fp.read().split("\n")
     except FileNotFoundError:
         content = []
     return content
-        
+
 
 def remove_other_sitecustomize():
     finished = False
@@ -25,14 +25,14 @@ def remove_other_sitecustomize():
             finished = True
         else:
             path = Path(sitecustomize.__file__)
-            if not (path.parent / 'setup.py').exists():
+            if not (path.parent / "setup.py").exists():
                 try:
                     path.unlink()
                 except PermissionError:
-                    if os.name == 'posix':
-                        args = ['sudo', 'rm', 'path']
-                        if 'SUDO_ASKPASS' in os.environ:
-                            args.insert(1, '-A')
+                    if os.name == "posix":
+                        args = ["sudo", "rm", "path"]
+                        if "SUDO_ASKPASS" in os.environ:
+                            args.insert(1, "-A")
                         subprocess.run(args)
                     else:
                         finished = True
@@ -45,12 +45,12 @@ def remove_other_sitecustomize():
 remove_other_sitecustomize()
 
 setup(
-    author='Quinten Roets',
-    author_email='quinten.roets@gmail.com',
-    description='gui',
+    author="Quinten Roets",
+    author_email="quinten.roets@gmail.com",
+    description="gui",
     name=NAME,
-    version='1.0',
+    version="1.0",
     packages=find_packages(),
-	py_modules=['sitecustomize'],
-    install_requires=read('requirements.txt'),
+    py_modules=["sitecustomize"],
+    install_requires=read("requirements.txt"),
 )

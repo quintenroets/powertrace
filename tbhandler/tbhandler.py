@@ -1,12 +1,13 @@
-import cli
 import os
 import sys
-import _thread as thread
 import threading
 
-from plib import Path
 from rich.console import Console
 from rich.traceback import Traceback
+
+import _thread as thread
+import cli
+from plib import Path
 
 tbs_handled = set({})
 tb_mutex = threading.Lock()
@@ -20,7 +21,7 @@ def excepthook(exc_type, exc_value, traceback):
     if exc_type not in (KeyboardInterrupt, SystemExit):
         with tb_mutex:
             # only visualize the first traceback for crashing threads
-            if not tbs_handled or threading.current_thread() is threading.main_thread():  
+            if not tbs_handled or threading.current_thread() is threading.main_thread():
                 tbs_handled.add(traceback)
                 show(exc_type, exc_value, traceback)
 
@@ -30,17 +31,21 @@ def show(exc_type=None, exc_value=None, traceback=None, exit=True):
     Can be called on any given moment to visualize the current stack trace
     param exit: stop execution after visualizing stack trace
     """
-    log_file = Path.assets / '.error_console.txt'
+    log_file = Path.assets / ".error_console.txt"
 
-    traceback = Traceback.from_exception(exc_type, exc_value, traceback, show_locals=True) if exc_type else Traceback()
-    with log_file.open('w') as fp:
+    traceback = (
+        Traceback.from_exception(exc_type, exc_value, traceback, show_locals=True)
+        if exc_type
+        else Traceback()
+    )
+    with log_file.open("w") as fp:
         console = Console(file=fp, record=True, force_terminal=True)
         console.print(traceback)
-        console.save_text(log_file.with_stem('.error'))
+        console.save_text(log_file.with_stem(".error"))
 
-    process = cli.start(f'cat {log_file}; read', console=True)
+    process = cli.start(f"cat {log_file}; read", console=True)
     process.communicate()  # make sure opening cli has finished before exiting
-    
+
     if exit and threading.current_thread() is not threading.main_thread():
         os._exit(1)  # force exit
         sys.exit(1)  # stop execution after error in threads as well
