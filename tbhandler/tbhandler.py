@@ -26,11 +26,21 @@ def excepthook(exc_type, exc_value, traceback):
                 show(exc_type, exc_value, traceback)
 
 
-def show(exc_type=None, exc_value=None, traceback=None, exit=True):
+def show(exc_type=None, exc_value=None, traceback=None, exit=True, repeat=True):
     """
     Can be called on any given moment to visualize the current stack trace
     param exit: stop execution after visualizing stack trace
     """
+    with tb_mutex:
+        # only visualize the first traceback for crashing threads
+        if not tbs_handled or (
+            threading.current_thread() is threading.main_thread() and repeat
+        ):
+            tbs_handled.add(traceback)
+            _show(exc_type, exc_value, traceback, exit)
+
+
+def _show(exc_type=None, exc_value=None, traceback=None, exit=True):
     log_file = Path.assets / ".error_console.txt"
 
     traceback = (
