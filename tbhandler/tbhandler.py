@@ -22,7 +22,13 @@ def excepthook(exc_type, exc_value, traceback):
         show(exc_type, exc_value, traceback)
 
 
-def show(exc_type=None, exc_value=None, traceback=None, exit=True, repeat=True):
+def show(
+    exc_type=None,
+    exc_value=None,
+    traceback=None,
+    exit=True,
+    repeat=True,
+):
     """
     Can be called on any given moment to visualize the current stack trace
     param exit: stop execution after visualizing stack trace
@@ -33,7 +39,11 @@ def show(exc_type=None, exc_value=None, traceback=None, exit=True, repeat=True):
             threading.current_thread() is threading.main_thread() and repeat
         ):
             tbs_handled.add(traceback)
-            _show(exc_type, exc_value, traceback, exit)
+            try:
+                _show(exc_type, exc_value, traceback, exit)
+            except Exception as e:
+                # constructing rich traceback can fail: visualize this as well
+                _show(exit=exit)
 
 
 def _show(exc_type=None, exc_value=None, traceback=None, exit=True):

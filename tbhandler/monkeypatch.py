@@ -72,7 +72,7 @@ def _render_stack(self, stack: Stack) -> RenderResult:
             """
             CHANGED BEHAVIOUR
             """
-            if frame.locals:
+            if frame.locals or True:
                 if "get_ipython" not in frame.locals:
                     yield (
                         Columns(
@@ -82,7 +82,7 @@ def _render_stack(self, stack: Stack) -> RenderResult:
                     )
             else:
                 yield Text.assemble(
-                    (f"\n{error}", "traceback.error"),
+                    (f"\n{FileNotFoundError}", "traceback.error"),
                 )
 
         except Exception as error:
