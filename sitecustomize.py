@@ -6,7 +6,7 @@ import _thread as thread
 
 """
 This file is executed before every script so performance is critical.
-The hooks below are never called for most scripts, so we only install them when they are needed. 
+The hooks and builtins below are never called for most scripts, so we only install them when they are needed. 
 Lazy importing & installing limits total overhead of this complete file to nanosecond scale.
 """
 
@@ -42,6 +42,17 @@ def is_notebook():
     return notebook
 
 
+#  Notebook setup is done in separate extension
+if not is_notebook():
+    sys.excepthook = excepthook
+    sys.displayhook = displayhook
+    thread._excepthook = threading_excepthook
+
+"""
+ADD NEW BUILTINS: only for quick debugging: always import properly in projects where it is used permanently
+"""
+
+
 def pprint(item):
     from rich import pretty
 
@@ -49,10 +60,21 @@ def pprint(item):
     builtins.pprint(item)
 
 
-#  Notebook setup is done in separate extension
-if not is_notebook():
-    sys.excepthook = excepthook
-    sys.displayhook = displayhook
-    thread._excepthook = threading_excepthook
+class Timer:
+    def __new__():
+        from libs.timer import Timer
 
-builtins.pprint = pprint  # only for quick debugging: always import properly in projects where it is used permanently
+        builtins.Timer = Timer
+        return builtins.Timer()
+
+
+def timing(function):
+    from libs.timer import timing
+
+    builtins.timing = timing
+    return builtins.timing(function)
+
+
+builtins.pprint = pprint
+builtins.Timer = Timer
+builtins.timing = timing
