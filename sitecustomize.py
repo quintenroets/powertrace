@@ -61,7 +61,7 @@ def pprint(item):
 
 
 class Timer:
-    def __new__():
+    def __new__(cls):
         from libs.timer import Timer
 
         builtins.Timer = Timer
