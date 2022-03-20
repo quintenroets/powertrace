@@ -61,11 +61,11 @@ def pprint(item):
 
 
 class Timer:
-    def __new__(cls):
+    def __new__(cls, *args, **kwargs):
         from libs.timer import Timer
 
         builtins.Timer = Timer
-        return builtins.Timer()
+        return builtins.Timer(*args, **kwargs)
 
 
 def timing(function):
