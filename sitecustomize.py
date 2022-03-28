@@ -53,11 +53,11 @@ ADD NEW BUILTINS: only for quick debugging: always import properly in projects w
 """
 
 
-def pprint(item):
+def pprint(*items):
     from rich import pretty
 
-    builtins.pprint = pretty.pprint
-    builtins.pprint(item)
+    for item in items:
+        pretty.pprint(item)
 
 
 class Timer:
