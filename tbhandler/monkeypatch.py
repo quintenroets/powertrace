@@ -126,9 +126,6 @@ def _render_stack(self, stack: Stack) -> RenderResult:
                 )
 
 
-old_from_exception = copy.copy(Traceback.from_exception)
-
-
 def reloadgpu(exc_value):
     try:
         from system.reloadgpu import main
@@ -138,16 +135,27 @@ def reloadgpu(exc_value):
         pass
 
 
+def custom_handlers(exc_type, exc_value):
+    """
+    Specify custom exception handlers
+    """
+    handlers = {
+        (RuntimeError, "CUDA unknown error"): reloadgpu,
+        (RuntimeError, "CUDA out of memory. "): reloadgpu,
+    }
+
+    for (error_type, error_message), handler in handlers.items():
+        if isinstance(exc_value, error_type) and error_message in str(exc_value):
+            handler(exc_value)
+
+
 def handle_exceptions(function):
     """
     Returns a exception handling decorator.
     """
-    handlers = {(RuntimeError, "CUDA unknown error"): reloadgpu}
 
     def decorator(exc_type, exc_value, *args, **kwargs):
-        for (error_type, error_message), handler in handlers.items():
-            if isinstance(exc_value, error_type) and error_message in str(exc_value):
-                handler(exc_value)
+        custom_handlers(exc_type, exc_value)
         return function(exc_type, exc_value, *args, **kwargs)
 
     return decorator
