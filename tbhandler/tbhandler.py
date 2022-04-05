@@ -53,15 +53,26 @@ def _show(exc_type=None, exc_value=None, traceback=None, exit=True):
 
     log_file = Path.assets / ".error_console.txt"
 
-    traceback = (
+    traceback_message = (
         Traceback.from_exception(exc_type, exc_value, traceback, show_locals=True)
         if exc_type
         else Traceback()
     )
+
     with log_file.open("w") as fp:
         console = Console(file=fp, record=True, force_terminal=True)
-        console.print(traceback)
+        console.print(traceback_message)
         console.save_text(log_file.with_stem(".error"))
+
+    if exc_type:
+        traceback_message_short = Traceback.from_exception(
+            exc_type, exc_value, traceback
+        )
+        with Path.tempfile() as path:
+            with path.open("w") as fp:
+                console = Console(file=fp, record=True, force_terminal=True)
+                console.print(traceback_message_short)
+                console.save_text(log_file.with_stem(".error_short"))
 
     process = cli.start(f"cat {log_file}; read", console=True)
     process.communicate()  # make sure opening cli has finished before exiting
