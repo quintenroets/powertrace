@@ -2,11 +2,11 @@ import os
 import sys
 import threading
 
-import cli
 from rich.console import Console
 from rich.traceback import Traceback
 
 import _thread as thread
+import cli
 from plib import Path
 
 tbs_handled = set({})
@@ -52,9 +52,12 @@ def _show(exc_type=None, exc_value=None, traceback=None, exit=True):
     custom_handlers(exc_type, exc_value)
 
     log_file = Path.assets / ".error_console.txt"
+    show_locals = os.environ.get("full_traceback", "false") != "false"
 
     traceback_message = (
-        Traceback.from_exception(exc_type, exc_value, traceback, show_locals=True)
+        Traceback.from_exception(
+            exc_type, exc_value, traceback, show_locals=show_locals
+        )
         if exc_type
         else Traceback()
     )
