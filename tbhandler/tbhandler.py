@@ -9,6 +9,8 @@ import _thread as thread
 import cli
 from plib import Path
 
+from . import config
+
 tbs_handled = set({})
 tb_mutex = threading.Lock()
 
@@ -47,12 +49,12 @@ def show(
 
 
 def _show(exc_type=None, exc_value=None, traceback=None, exit=True):
-    from .monkeypatch import custom_handlers  # slow import
+    from . import monkeypatch  # slow import
 
-    custom_handlers(exc_type, exc_value)
+    monkeypatch.custom_handlers(exc_type, exc_value)
 
     log_file = Path.assets / ".error_console.txt"
-    show_locals = os.environ.get("full_traceback", "false") != "false"
+    show_locals = config.show_locals()
 
     traceback_message = (
         Traceback.from_exception(
@@ -67,7 +69,7 @@ def _show(exc_type=None, exc_value=None, traceback=None, exit=True):
         console.print(traceback_message)
         console.save_text(log_file.with_stem(".error"))
 
-    if exc_type:
+    if exc_type and show_locals:
         traceback_message_short = Traceback.from_exception(
             exc_type, exc_value, traceback
         )

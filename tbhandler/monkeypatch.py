@@ -101,7 +101,7 @@ def _render_stack(self, stack: Stack) -> RenderResult:
                 """
                 CHANGED BEHAVIOUR
                 """
-                if "get_ipython" not in frame.locals:
+                if not frame.locals or "get_ipython" not in frame.locals:
                     yield (
                         Columns(
                             [*render_locals(frame)],
