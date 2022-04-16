@@ -54,7 +54,8 @@ def _show(exc_type=None, exc_value=None, traceback=None, exit=True):
     monkeypatch.custom_handlers(exc_type, exc_value)
 
     log_file = Path.assets / ".error_console.txt"
-    show_locals = config.show_locals()
+    # Calculating locals on ImportError leads to infinite recursive traceback handling and abortion
+    show_locals = config.show_locals() and exc_type != ImportError
 
     traceback_message = (
         Traceback.from_exception(
