@@ -7,7 +7,7 @@ import _thread as thread
 """
 This file is executed before every script so performance is critical.
 The hooks and builtins below are never called for most scripts, so we only install them when they are needed. 
-Lazy importing & installing limits total overhead of this complete file to nanosecond scale.
+Lazy importing & installing limits total overhead of this complete file to microsecond scale.
 """
 
 

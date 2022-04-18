@@ -135,18 +135,19 @@ def reloadgpu(exc_value):
         pass
 
 
-def custom_handlers(exc_type, exc_value):
+def get_custom_handlers():
     """
     Specify custom exception handlers
     """
-    handlers = {
-        (RuntimeError, "CUDA unknown error"): reloadgpu,
-        (RuntimeError, "CUDA out of memory. "): reloadgpu,
-    }
+    return {reloadgpu: {RuntimeError: ("CUDA unknown error", "CUDA out of memory. ")}}
 
-    for (error_type, error_message), handler in handlers.items():
-        if isinstance(exc_value, error_type) and error_message in str(exc_value):
-            handler(exc_value)
+
+def run_custom_handlers(exc_type, exc_value):
+    for handler, conditions in get_custom_handlers().items():
+        for error_type, error_messages in conditions.items():
+            for message in error_messages:
+                if isinstance(exc_value, error_type) and message in str(exc_value):
+                    handler(exc_value)
 
 
 def handle_exceptions(function):
@@ -155,7 +156,7 @@ def handle_exceptions(function):
     """
 
     def decorator(exc_type, exc_value, *args, **kwargs):
-        custom_handlers(exc_type, exc_value)
+        run_custom_handlers(exc_type, exc_value)
         return function(exc_type, exc_value, *args, **kwargs)
 
     return decorator
