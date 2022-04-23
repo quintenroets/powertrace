@@ -51,7 +51,7 @@ def excepthook(exc_type, exc_value, traceback):
         show(EXC_INFO(exc_type, exc_value, traceback))
 
 
-def show(exc_info: EXC_INFO, exit_after: bool = True, repeat: bool = True):
+def show(exc_info: EXC_INFO = EXC_INFO(), exit_after: bool = True, repeat: bool = True):
     """
     Can be called on any given moment to visualize the current stack trace
     param exit: stop execution after visualizing stack trace
