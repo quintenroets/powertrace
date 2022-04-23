@@ -2,6 +2,7 @@ import os
 import subprocess
 from pathlib import Path
 
+import cli
 from setuptools import find_packages, setup
 
 NAME = "tbhandler"
@@ -20,17 +21,17 @@ def remove_other_sitecustomize():
     finished = False
     while not finished:
         try:
-            import sitecustomize
+            sitecustomize_file = cli.get("python3 -c 'import sitecustomize; print(sitecustomize.__file__)'")
         except ModuleNotFoundError:
             finished = True
         else:
-            path = Path(sitecustomize.__file__)
+            path = Path(sitecustomize_file)
             if not (path.parent / "setup.py").exists():
                 try:
                     path.unlink()
                 except PermissionError:
                     if os.name == "posix":
-                        args = ["sudo", "rm", "path"]
+                        args = ["sudo", "rm", path]
                         if "SUDO_ASKPASS" in os.environ:
                             args.insert(1, "-A")
                         subprocess.run(args)
