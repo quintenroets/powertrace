@@ -21,7 +21,9 @@ def remove_other_sitecustomize():
     finished = False
     while not finished:
         try:
-            sitecustomize_file = cli.get("python3 -c 'import sitecustomize; print(sitecustomize.__file__)'")
+            sitecustomize_file = cli.get(
+                "python3 -c 'import sitecustomize; print(sitecustomize.__file__)'"
+            )
         except ModuleNotFoundError:
             finished = True
         else:

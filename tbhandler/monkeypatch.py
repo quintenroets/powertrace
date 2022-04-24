@@ -1,5 +1,3 @@
-import copy
-
 from rich.traceback import *
 
 
@@ -128,7 +126,7 @@ def _render_stack(self, stack: Stack) -> RenderResult:
 
 def reloadgpu(exc_value):
     try:
-        from system.reloadgpu import main
+        from system.reloadgpu import main  # noqa: autoimport
 
         main()
     except ModuleNotFoundError:

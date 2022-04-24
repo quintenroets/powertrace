@@ -1,3 +1,4 @@
+import _thread as thread
 import os
 import sys
 import threading
@@ -5,12 +6,10 @@ from dataclasses import dataclass
 from functools import cached_property
 from types import TracebackType
 
-from rich.console import Console
-from rich.traceback import Traceback
-
-import _thread as thread
 import cli
 from plib import Path
+from rich.console import Console
+from rich.traceback import Traceback
 
 from . import config
 
@@ -71,7 +70,7 @@ def show(exc_info: EXC_INFO = EXC_INFO(), exit_after: bool = True, repeat: bool 
 
 
 def _show(exc_info: EXC_INFO, exit_after=True):
-    from . import monkeypatch  # slow import
+    from . import monkeypatch  # noqa: autoimport
 
     monkeypatch.run_custom_handlers(exc_info.type, exc_info.value)
 

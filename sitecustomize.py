@@ -1,8 +1,6 @@
+import _thread as thread
 import builtins
 import sys
-
-import _thread as thread
-
 
 """
 This file is executed before every script so performance is critical.
@@ -12,7 +10,7 @@ Lazy importing & installing limits total overhead of this complete file to micro
 
 
 def install_tbhandler():
-    import tbhandler
+    import tbhandler  # noqa: autoimport
 
     tbhandler.install()
 
@@ -28,7 +26,7 @@ def threading_excepthook(*args):
 
 
 def displayhook(value):
-    from rich import pretty
+    from rich import pretty  # noqa: autoimport
 
     pretty.install()
     sys.displayhook(value)
@@ -54,7 +52,7 @@ ADD NEW BUILTINS: only for quick debugging: always import properly in projects w
 
 
 def pprint(*items):
-    from rich import pretty
+    from rich import pretty  # noqa: autoimport
 
     for item in items:
         pretty.pprint(item)
@@ -62,14 +60,14 @@ def pprint(*items):
 
 class Timer:
     def __new__(cls, *args, **kwargs):
-        from libs.timer import Timer
+        from libs.timer import Timer  # noqa: autoimport
 
         builtins.Timer = Timer
         return builtins.Timer(*args, **kwargs)
 
 
 def timing(function):
-    from libs.timer import timing
+    from libs.timer import timing  # noqa: autoimport
 
     builtins.timing = timing
     return builtins.timing(function)
