@@ -93,7 +93,7 @@ def _show(exc_info: EXC_INFO, exit_after=True):
                 log_path.with_stem(".error_short"),
             )
 
-    process = cli.start(f"cat {log_path}; read", console=True)
+    process = cli.start(f"cat {log_path}; read", console=True, title="Exception")
     process.communicate()  # make sure opening cli has finished before exiting
 
     if exit and threading.current_thread() is not threading.main_thread():
