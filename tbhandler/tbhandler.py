@@ -75,6 +75,7 @@ def _show(exc_info: EXC_INFO = None, exit_after=True):
     monkeypatch.run_custom_handlers(exc_info.type, exc_info.value)
 
     log_folder = Path.assets / ".error"
+    console_log_path = log_folder / "console.txt"
 
     loading_error = any(
         frame.name == "importlib_load_entry_point"
@@ -93,7 +94,9 @@ def _show(exc_info: EXC_INFO = None, exit_after=True):
                 log_folder / "short.txt",
             )
 
-    process = cli.start(f"cat {log_path}; read", console=True, title="Exception")
+    process = cli.start(
+        f"cat {console_log_path}; read", console=True, title="Exception"
+    )
     process.communicate()  # make sure opening cli has finished before exiting
 
     if exit and threading.current_thread() is not threading.main_thread():
