@@ -64,17 +64,17 @@ def show(exc_info: EXC_INFO = EXC_INFO(), exit_after: bool = True, repeat: bool 
             tb_handled = True
             try:
                 _show(exc_info, exit_after)
-            except Exception as e:
+            except Exception:
                 # constructing rich traceback can fail: visualize this as well
-                _show(exit_after=exit)
+                _show(exit_after=exit_after)
 
 
-def _show(exc_info: EXC_INFO, exit_after=True):
+def _show(exc_info: EXC_INFO = None, exit_after=True):
     from . import monkeypatch  # noqa: autoimport
 
     monkeypatch.run_custom_handlers(exc_info.type, exc_info.value)
 
-    log_path = Path.assets / ".error_console.txt"
+    log_folder = Path.assets / ".error"
 
     loading_error = any(
         frame.name == "importlib_load_entry_point"
@@ -83,14 +83,14 @@ def _show(exc_info: EXC_INFO, exit_after=True):
     # generating locals on error during initial loading leads to infinite recursive traceback handling and abortion
     show_locals = config.show_locals() and not loading_error
     traceback = exc_info.message if show_locals else exc_info.short_message
-    save_traceback(traceback, log_path, log_path.with_stem(".error"))
+    save_traceback(traceback, log_folder / "console.txt", log_folder / "error.txt")
 
     if exc_info.type and show_locals:
         with Path.tempfile() as path:
             save_traceback(
                 exc_info.short_message,
                 path,
-                log_path.with_stem(".error_short"),
+                log_folder / "short.txt",
             )
 
     process = cli.start(f"cat {log_path}; read", console=True, title="Exception")
