@@ -2,6 +2,8 @@ import _thread as thread
 import builtins
 import sys
 
+from plib import Path
+
 """
 This file is executed before every script so performance is critical.
 The hooks and builtins below are never called for most scripts, so we only install them when they are needed. 
@@ -74,5 +76,6 @@ def timing(function):
 
 
 builtins.pprint = pprint
+builtins.Path = Path
 builtins.Timer = Timer
 builtins.timing = timing
