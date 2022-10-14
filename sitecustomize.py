@@ -1,6 +1,6 @@
-import _thread as thread
 import builtins
 import sys
+import threading
 
 from plib import Path
 
@@ -24,7 +24,7 @@ def excepthook(*args):
 
 def threading_excepthook(*args):
     install_tbhandler()
-    thread._excepthook(*args)
+    threading.excepthook(*args)
 
 
 def displayhook(value):
@@ -46,7 +46,7 @@ def is_notebook():
 if not is_notebook():
     sys.excepthook = excepthook
     sys.displayhook = displayhook
-    thread._excepthook = threading_excepthook
+    threading.excepthook = threading_excepthook
 
 """
 ADD NEW BUILTINS: only for quick debugging: always import properly in projects where it is used permanently
