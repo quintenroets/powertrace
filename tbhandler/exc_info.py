@@ -24,6 +24,7 @@ class ExcInfo:
     traceback: TracebackType = None
     exit_after: bool = True
     repeat: bool = True
+    disable_show_locals: bool = False
 
     @property
     def in_main_thread(self):
@@ -36,7 +37,9 @@ class ExcInfo:
             for frame in self.short_message.trace.stacks[0].frames
         )
         # generating locals on error during initial loading leads to infinite recursive traceback handling and abortion
-        show_locals = config.show_locals() and not loading_error
+        show_locals = config.show_locals() and not (
+            loading_error or self.disable_show_locals
+        )
         return show_locals
 
     @property
@@ -78,10 +81,15 @@ class ExcInfo:
     def show_single(self):
         try:
             self._show_single()
-        except Exception:  # noqa
-            # constructing rich traceback can fail: visualize this as well
-            exc = ExcInfo(exit_after=self.exit_after)
-            exc._show_single()
+        except:  # noqa
+            self.disable_show_locals = True
+            try:
+                # try without locals when message construction fails
+                self._show_single()
+            except:
+                # visualize failure to construct message
+                exc = ExcInfo(exit_after=self.exit_after)
+                exc._show_single()
 
     def _show_single(self):
         from . import monkeypatch  # noqa: autoimport
