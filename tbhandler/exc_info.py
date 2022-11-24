@@ -114,10 +114,11 @@ class ExcInfo:
         command = f"cat {Path.log.console}; read"
         try:
             process = cli.start(command, console=True, title="Exception")
-            process.communicate()  # make sure opening cli has finished before exiting
         except FileNotFoundError:
             # opening new window failed -> just show in current window
-            cli.start(command)
+            process = cli.start(command)
+
+        process.communicate()  # make sure opening cli has finished before exiting
 
     def save(self, path: Path, include_locals: bool = None):
         if include_locals is None:
