@@ -36,7 +36,8 @@ class ExcInfo:
             frame.name == "importlib_load_entry_point"
             for frame in self.short_message.trace.stacks[0].frames
         )
-        # generating locals on error during initial loading leads to infinite recursive traceback handling and abortion
+        # generating locals on error during initial loading leads
+        # to infinite recursive traceback handling and abortion
         show_locals = config.show_locals() and not (
             loading_error or self.disable_show_locals
         )
@@ -86,7 +87,7 @@ class ExcInfo:
             try:
                 # try without locals when message construction fails
                 self._show_single()
-            except:
+            except Exception:
                 # visualize failure to construct message
                 exc = ExcInfo(exit_after=self.exit_after)
                 exc._show_single()
@@ -111,8 +112,12 @@ class ExcInfo:
     @classmethod
     def visualize_in_console(cls):
         command = f"cat {Path.log.console}; read"
-        process = cli.start(command, console=True, title="Exception")
-        process.communicate()  # make sure opening cli has finished before exiting
+        try:
+            process = cli.start(command, console=True, title="Exception")
+            process.communicate()  # make sure opening cli has finished before exiting
+        except FileNotFoundError:
+            # opening new window failed -> just show in current window
+            cli.start(command)
 
     def save(self, path: Path, include_locals: bool = None):
         if include_locals is None:
