@@ -69,7 +69,6 @@ class ExcInfo:
 
     def safe_show(self):
         if self.type not in (KeyboardInterrupt, SystemExit, None, RecursionError):
-            Path.draft.text = self.type
             with tb_mutex:
                 # only visualize the first traceback for crashing threads
                 self.single_threaded_show()
