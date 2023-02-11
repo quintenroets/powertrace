@@ -111,13 +111,24 @@ class ExcInfo:
 
     @classmethod
     def visualize_in_console(cls):
+        can_visualize_in_new_tab = "DISPLAY" in os.environ
+        if can_visualize_in_new_tab:
+            try:
+                cls.visualize_in_new_tab()
+            except FileNotFoundError:
+                can_visualize_in_new_tab = False
+        if not can_visualize_in_new_tab:
+            cls.visualize_in_active_tab()
+
+    @classmethod
+    def visualize_in_new_tab(cls):
         command = f"cat {Path.log.console}; read"
-        try:
-            process = cli.start(command, console=True, title="Exception")
-            process.communicate()  # make sure opening cli has finished before exiting
-        except FileNotFoundError:
-            # opening new window failed -> just show in current window
-            cli.run("cat", Path.log.console)
+        process = cli.start(command, console=True, title="Exception")
+        process.communicate()  # make sure opening cli has finished before exiting
+
+    @classmethod
+    def visualize_in_active_tab(cls):
+        cli.run("cat", Path.log.console)
 
     def save(self, path: Path, include_locals: bool = None):
         if include_locals is None:
