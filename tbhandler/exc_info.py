@@ -82,9 +82,17 @@ class ExcInfo:
 
     @property
     def filename(self):
+        frame_summary = None
         for frame_summary, _ in walk_tb(self.traceback):
             pass
-        return frame_summary.f_code.co_filename
+        return frame_summary and self.extract_path(frame_summary)
+
+    @classmethod
+    def extract_path(cls, frame_summary):
+        path = Path(frame_summary.f_code.co_filename)
+        if not path.exists():
+            path = None
+        return path
 
     def show_single(self):
         try:
@@ -127,7 +135,9 @@ class ExcInfo:
             self.visualize_in_active_tab()
 
     def visualize_in_new_tab(self):
-        command = f"cat {Path.log.console}; ask_open_exception_file {self.filename}"
+        command = (
+            f"cat {Path.log.console}; ask_open_exception_file {self.filename} || read"
+        )
         process = cli.start(command, console=True, title="Exception")
         process.communicate()  # make sure opening cli has finished before exiting
 
