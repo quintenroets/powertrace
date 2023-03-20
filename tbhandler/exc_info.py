@@ -135,9 +135,12 @@ class ExcInfo:
             self.visualize_in_active_tab()
 
     def visualize_in_new_tab(self):
-        command = (
-            f"cat {Path.log.console}; ask_open_exception_file {self.filename} || read"
+        confirm_command = (
+            "read"
+            if self.filename is None
+            else f"ask_open_exception_file {self.filename} || read"
         )
+        command = f"cat {Path.log.console}; {confirm_command}"
         process = cli.start(command, console=True, title="Exception")
         process.communicate()  # make sure opening cli has finished before exiting
 
