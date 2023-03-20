@@ -11,7 +11,12 @@ Module to notify user of errors in all scripts, even when they run without termi
 pip install git+https://github.com/quintenroets/tbhandler
 ```
 
-This will create a new sitecustomize file and overwrite existing ones.
+This will create a new sitecustomize file. To overwrite existing sitecustomize file, run:
+
+```shell
+install_sitecustomize
+```
+
 Alternatively, you can use the manual installation of the tbhandler in each of your scripts.
 
 ```shell
