@@ -4,7 +4,9 @@ import threading
 import traceback
 from dataclasses import dataclass
 from functools import cached_property
+from traceback import walk_tb
 from types import TracebackType
+from typing import ClassVar
 
 import cli
 from rich.console import Console
@@ -13,7 +15,6 @@ from rich.traceback import Traceback
 from . import config
 from .path import Path
 
-tb_handled: bool = False
 tb_mutex = threading.Lock()
 
 
@@ -25,6 +26,7 @@ class ExcInfo:
     exit_after: bool = True
     repeat: bool = True
     disable_show_locals: bool = False
+    tb_handled: ClassVar[bool] = False
 
     @property
     def in_main_thread(self):
@@ -74,10 +76,15 @@ class ExcInfo:
                 self.single_threaded_show()
 
     def single_threaded_show(self):
-        global tb_handled
-        if not tb_handled or (self.in_main_thread and self.repeat):
-            tb_handled = True
+        if not self.tb_handled or (self.in_main_thread and self.repeat):
+            self.tb_handled = True
             self.show_single()
+
+    @property
+    def filename(self):
+        for frame_summary, _ in walk_tb(self.traceback):
+            pass
+        return frame_summary.f_code.co_filename
 
     def show_single(self):
         try:
@@ -109,20 +116,18 @@ class ExcInfo:
             os._exit(1)  # force exit
             sys.exit(1)  # stop execution after error in threads as well
 
-    @classmethod
-    def visualize_in_console(cls):
+    def visualize_in_console(self):
         can_visualize_in_new_tab = "DISPLAY" in os.environ
         if can_visualize_in_new_tab:
             try:
-                cls.visualize_in_new_tab()
+                self.visualize_in_new_tab()
             except FileNotFoundError:
                 can_visualize_in_new_tab = False
         if not can_visualize_in_new_tab:
-            cls.visualize_in_active_tab()
+            self.visualize_in_active_tab()
 
-    @classmethod
-    def visualize_in_new_tab(cls):
-        command = f"cat {Path.log.console}; read"
+    def visualize_in_new_tab(self):
+        command = f"cat {Path.log.console}; ask_open_exception_file {self.filename}"
         process = cli.start(command, console=True, title="Exception")
         process.communicate()  # make sure opening cli has finished before exiting
 
