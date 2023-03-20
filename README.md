@@ -8,18 +8,11 @@ Module to notify user of errors in all scripts, even when they run without termi
 ## Installation
 
 ```shell
-pip install git+https://github.com/quintenroets/tracebackhandler
+pip install git+https://github.com/quintenroets/tbhandler
 ```
 
-If this does not work, try:
-
-```shell
-sudo pip install git+https://github.com/quintenroets/tracebackhandler
-```
-
-to overwrite any existing traceback handlers
-
-Or use the manual installation of the tbhandler in each of your scripts
+This will create a new sitecustomize file and overwrite existing ones.
+Alternatively, you can use the manual installation of the tbhandler in each of your scripts.
 
 ```shell
 import tbhandler
