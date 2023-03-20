@@ -33,6 +33,11 @@ repos:
       - id: flake8
         name: Check PEP8
         args: [--max-line-length, "88"]
+  - repo: https://github.com/PyCQA/flake8
+    rev: 5.0.4
+    hooks:
+      - id: flake8
+        name: Check PEP8
   - repo: local
     hooks:
       - id: pytest-check
