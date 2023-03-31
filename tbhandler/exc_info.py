@@ -69,8 +69,12 @@ class ExcInfo:
             # last resort when custom error handling fails
             traceback.print_exc()
 
+    @property
+    def ignored_exception_types(self):
+        return KeyboardInterrupt, SystemExit, RecursionError, BrokenPipeError, None
+
     def safe_show(self):
-        if self.type not in (KeyboardInterrupt, SystemExit, None, RecursionError):
+        if self.type not in self.ignored_exception_types:
             with tb_mutex:
                 # only visualize the first traceback for crashing threads
                 self.single_threaded_show()
