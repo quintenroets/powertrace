@@ -129,7 +129,9 @@ class ExcInfo:
             sys.exit(1)  # stop execution after error in threads as well
 
     def visualize_in_console(self):
-        can_visualize_in_new_tab = "DISPLAY" in os.environ
+        can_visualize_in_new_tab = (
+            "DISPLAY" in os.environ and "localhost" not in os.environ["DISPLAY"]
+        )
         if can_visualize_in_new_tab:
             try:
                 self.visualize_in_new_tab()
