@@ -27,6 +27,14 @@ class ExcInfo:
     repeat: bool = True
     disable_show_locals: bool = False
     tb_handled: ClassVar[bool] = False
+    skipped_exception_types: tuple = (
+        KeyboardInterrupt,
+        SystemExit,
+        RecursionError,
+        BrokenPipeError,
+        None,
+    )
+    use_original_handler: tuple = (RecursionError,)
 
     @property
     def in_main_thread(self):
@@ -65,23 +73,21 @@ class ExcInfo:
     def show(self):
         try:
             self.safe_show()
-        except Exception as e:  # noqa
+        except Exception:  # noqa: E722
             # last resort when custom error handling fails
             traceback.print_exc()
 
-    @property
-    def ignored_exception_types(self):
-        return KeyboardInterrupt, SystemExit, RecursionError, BrokenPipeError, None
-
     def safe_show(self):
-        if self.type not in self.ignored_exception_types:
+        if self.type not in self.skipped_exception_types:
             with tb_mutex:
                 # only visualize the first traceback for crashing threads
                 self.single_threaded_show()
+        elif self.type in self.use_original_handler:
+            sys.__excepthook__(self.type, self.value, self.traceback)  # noqa: type
 
     def single_threaded_show(self):
         if not self.tb_handled or (self.in_main_thread and self.repeat):
-            self.tb_handled = True
+            self.__class__.tb_handled = True
             self.show_single()
 
     @property
@@ -112,7 +118,7 @@ class ExcInfo:
                 exc._show_single()
 
     def _show_single(self):
-        from . import monkeypatch  # noqa: autoimport
+        from . import monkeypatch  # noqa: E402, autoimport
 
         monkeypatch.run_custom_handlers(self.type, self.value)
 

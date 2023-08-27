@@ -1,0 +1,49 @@
+[project]
+name = "tbhandler"
+version = "0.0.1"
+description = "Automated detailed traceback visualization"
+authors = [{name = "Quinten Roets", email = "qdr2104@columbia.edu"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "quinten-cli",
+    "rich",
+    "superpathlib"
+]
+
+[project.urls]
+"Source Code" = "https://github.com/quintenroets/tbhandler"
+
+[project.scripts]
+investing = "investing:main"
+ask_open_exception_file = "tbhandler.opener:main"
+install_sitecustomize = "tbhandler.sitecustomize_remover:main"
+
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+]
+
+[tool.setuptools]
+py-modules = [
+    "sitecustomize"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "UP",  # pyupgrade
+]
+fix = true
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
