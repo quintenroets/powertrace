@@ -1,5 +1,5 @@
 ![Publish action](https://github.com/quintenroets/tbhandler/actions/workflows/publish.yml/badge.svg)
-[![PyPI version](https://badge.fury.io/py/backupmaster.svg)](https://badge.fury.io/py/backupmaster)
+[![PyPI version](https://badge.fury.io/py/tbhandler.svg)](https://badge.fury.io/py/tbhandler)
 
 # Traceback handler
 
