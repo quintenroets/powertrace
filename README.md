@@ -1,4 +1,4 @@
-![Publish action](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
+![Publish action](https://github.com/quintenroets/tbhandler/actions/publish.yml/badge.svg)
 [![PyPI version](https://badge.fury.io/py/backupmaster.svg)](https://badge.fury.io/py/backupmaster)
 
 # Traceback handler
