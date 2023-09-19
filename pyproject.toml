@@ -1,6 +1,6 @@
 [project]
 name = "tbhandler"
-version = "0.0.1"
+version = "0.0.2"
 description = "Automated detailed traceback visualization"
 authors = [{name = "Quinten Roets", email = "qdr2104@columbia.edu"}]
 license = {text = "MIT"}
@@ -12,24 +12,28 @@ dependencies = [
     "superpathlib"
 ]
 
-[project.urls]
-"Source Code" = "https://github.com/quintenroets/tbhandler"
-
-[project.scripts]
-investing = "investing:main"
-ask_open_exception_file = "tbhandler.opener:main"
-install_sitecustomize = "tbhandler.sitecustomize_remover:main"
-
-
 [project.optional-dependencies]
 dev = [
     "pre-commit",
 ]
+test = [
+    "pytest"
+]
+
+[project.urls]
+"Source Code" = "https://github.com/quintenroets/tbhandler"
+
+[project.scripts]
+ask_open_exception_file = "tbhandler.opener:main"
+install_sitecustomize = "tbhandler.sitecustomize_remover:main"
 
 [tool.setuptools]
 py-modules = [
     "sitecustomize"
 ]
+
+[tool.setuptools.packages.find]
+include = ["*"]
 
 [build-system]
 requires = ["setuptools"]

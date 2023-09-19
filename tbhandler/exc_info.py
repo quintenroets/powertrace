@@ -1,4 +1,5 @@
 import os
+import pdb
 import sys
 import threading
 import traceback
@@ -127,7 +128,13 @@ class ExcInfo:
             self.save(Path.short_log, include_locals=False)
 
         self.visualize_in_console()
+        self.check_debug()
         self.exit()
+
+    def check_debug(self):
+        should_debug = "tbhanlder_DEBUG" in os.environ and sys.stdin.isatty()
+        if should_debug:
+            pdb.post_mortem(self.traceback)
 
     def exit(self):
         if self.exit_after and not self.in_main_thread:
