@@ -23,5 +23,6 @@ Alternatively, you can use the manual installation of the tbhandler in each of y
 
 ```shell
 import tbhandler
+
 tbhandler.install()
 ```
