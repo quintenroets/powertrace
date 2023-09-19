@@ -1,4 +1,3 @@
-[![Publish package](https://github.com/quintenroets/tbhandler/actions/workflows/publish.yml/badge.svg)](https://github.com/quintenroets/tbhandler/actions/workflows/publish.yml)
 [![PyPI version](https://badge.fury.io/py/tbhandler.svg)](https://badge.fury.io/py/tbhandler)
 
 # Traceback handler
