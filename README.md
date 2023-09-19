@@ -1,3 +1,6 @@
+![Publish action](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
+[![PyPI version](https://badge.fury.io/py/backupmaster.svg)](https://badge.fury.io/py/backupmaster)
+
 # Traceback handler
 
 Module to notify user of errors in all scripts, even when they run without terminal
