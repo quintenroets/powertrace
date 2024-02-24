@@ -1,7 +1,7 @@
 import os
 
 import pexpect
-from plib import Path
+from superpathlib import Path
 
 import tbhandler
 

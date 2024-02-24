@@ -84,7 +84,7 @@ class ExcInfo:
                 # only visualize the first traceback for crashing threads
                 self.single_threaded_show()
         elif self.type in self.use_original_handler:
-            sys.__excepthook__(self.type, self.value, self.traceback)  # noqa: type
+            sys.__excepthook__(self.type, self.value, self.traceback)
 
     def single_threaded_show(self):
         if not self.tb_handled or (self.in_main_thread and self.repeat):

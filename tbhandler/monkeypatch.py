@@ -1,11 +1,25 @@
-from rich.traceback import *
+from collections.abc import Iterable
+
+from rich.traceback import (
+    Columns,
+    ConsoleRenderable,
+    Frame,
+    PathHighlighter,
+    RenderResult,
+    Stack,
+    Syntax,
+    Text,
+    Traceback,
+    group,
+    render_scope,
+)
 
 
 @group()
 def _render_stack(self, stack: Stack) -> RenderResult:
     path_highlighter = PathHighlighter()
     theme = self.theme
-    code_cache: Dict[str, str] = {}
+    code_cache: dict[str, str] = {}
 
     def read_code(filename: str) -> str:
         """Read files, and cache results on filename.
@@ -18,7 +32,7 @@ def _render_stack(self, stack: Stack) -> RenderResult:
         """
         code = code_cache.get(filename)
         if code is None:
-            with open(filename, "rt", encoding="utf-8", errors="replace") as code_file:
+            with open(filename, encoding="utf-8", errors="replace") as code_file:
                 code = code_file.read()
             code_cache[filename] = code
         return code
@@ -33,7 +47,7 @@ def _render_stack(self, stack: Stack) -> RenderResult:
                 max_string=self.locals_max_string,
             )
 
-    exclude_frames: Optional[range] = None
+    exclude_frames: range | None = None
     if self.max_frames != 0:
         exclude_frames = range(
             self.max_frames // 2,
@@ -42,7 +56,6 @@ def _render_stack(self, stack: Stack) -> RenderResult:
 
     excluded = False
     for frame_index, frame in enumerate(stack.frames):
-
         if exclude_frames and frame_index in exclude_frames:
             excluded = True
             continue
@@ -97,7 +110,7 @@ def _render_stack(self, stack: Stack) -> RenderResult:
 
             except FileNotFoundError:
                 """
-                CHANGED BEHAVIOUR
+                CHANGED BEHAVIOUR.
                 """
                 if not frame.locals or "get_ipython" not in frame.locals:
                     yield (
@@ -124,20 +137,11 @@ def _render_stack(self, stack: Stack) -> RenderResult:
                 )
 
 
-def reloadgpu(exc_value):
-    try:
-        from system.reloadgpu import main  # noqa: autoimport
-
-        main()
-    except ModuleNotFoundError:
-        pass
-
-
 def get_custom_handlers():
     """
-    Specify custom exception handlers
+    Specify custom exception handlers.
     """
-    return {reloadgpu: {RuntimeError: ("CUDA unknown error", "CUDA out of memory. ")}}
+    return {}
 
 
 def run_custom_handlers(exc_type, exc_value):

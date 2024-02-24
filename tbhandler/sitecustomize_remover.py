@@ -1,5 +1,5 @@
 import cli
-from plib import Path
+from superpathlib import Path
 
 
 def main():

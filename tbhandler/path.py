@@ -1,7 +1,7 @@
-import plib
+import superpathlib
 
 
-class BasePath(plib.Path):
+class BasePath(superpathlib.Path):
     @property
     def console(self):
         return self.with_stem("." + self.stem)

@@ -2,17 +2,18 @@ import builtins
 import sys
 import threading
 
-from plib import Path
+from superpathlib import Path
 
 """
 This file is executed before every script so performance is critical.
-The hooks and builtins below are never called for most scripts, so we only install them when they are needed. 
-Lazy importing & installing limits total overhead of this complete file to microsecond scale.
+The hooks and builtins below are never called for most scripts,
+so we only install them when they are needed.
+Lazy imports & installs limit the total overhead of this file to the microseconds scale.
 """
 
 
 def install_tbhandler():
-    import tbhandler  # noqa: autoimport
+    import tbhandler
 
     tbhandler.install()
 
@@ -28,7 +29,7 @@ def threading_excepthook(*args):
 
 
 def displayhook(value):
-    from rich import pretty  # noqa: autoimport
+    from rich import pretty
 
     pretty.install()
     sys.displayhook(value)
@@ -48,13 +49,15 @@ if not is_notebook():
     sys.displayhook = displayhook
     threading.excepthook = threading_excepthook
 
-"""
-ADD NEW BUILTINS: only for quick debugging: always import properly in projects where it is used permanently
-"""
+############################
+# ADD NEW BUILTINS
+# Only use for quick debugging.
+# Always import properly in projects where it is used permanently.
+############################
 
 
 def pprint(*items):
-    from rich import pretty  # noqa: autoimport
+    from rich import pretty
 
     for item in items:
         pretty.pprint(item)
@@ -62,14 +65,14 @@ def pprint(*items):
 
 class Timer:
     def __new__(cls, *args, **kwargs):
-        from libs.timer import Timer  # noqa: autoimport
+        from libs.timer import Timer
 
         builtins.Timer = Timer
         return builtins.Timer(*args, **kwargs)
 
 
 def timing(function):
-    from libs.timer import timing  # noqa: autoimport
+    from libs.timer import timing
 
     builtins.timing = timing
     return builtins.timing(function)
