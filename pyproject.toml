@@ -1,13 +1,13 @@
 [project]
 name = "tbhandler"
-version = "0.0.3"
+version = "0.1.0"
 description = "Automated detailed traceback visualization"
 authors = [{name = "Quinten Roets", email = "qdr2104@columbia.edu"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "quinten-cli",
+    "powercli",
     "rich",
     "superpathlib"
 ]

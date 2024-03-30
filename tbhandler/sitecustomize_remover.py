@@ -12,7 +12,7 @@ def main():
 
 def get_sitecustomize_path():
     command = 'python3 -c "import sitecustomize; print(sitecustomize.__file__)"'
-    result = cli.get(command)
+    result = cli.capture_output(command)
     return Path(result)
 
 
