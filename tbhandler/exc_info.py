@@ -160,7 +160,7 @@ class ExcInfo:
             else f"ask_open_exception_file {self.filename} || read"
         )
         command = f"cat {Path.log.console}; {confirm_command}"
-        process = cli.start(command, console=True, title="Exception")
+        process = cli.run_in_console(command, title="Exception")
         process.communicate()  # make sure opening cli has finished before exiting
 
     @classmethod
