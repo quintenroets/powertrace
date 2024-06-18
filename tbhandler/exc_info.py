@@ -132,7 +132,7 @@ class ExcInfo:
         self.exit()
 
     def check_debug(self):
-        should_debug = "tbhanlder_DEBUG" in os.environ and sys.stdin.isatty()
+        should_debug = "tbhandler_DEBUG" in os.environ and sys.stdin.isatty()
         if should_debug:
             pdb.post_mortem(self.traceback)
 
@@ -154,19 +154,18 @@ class ExcInfo:
             self.visualize_in_active_tab()
 
     def visualize_in_new_tab(self):
-        if "GITHUB_ACTIONS" in os.environ:
-            confirm_command = ""
-        elif self.filename is None:
-            confirm_command = "read"
-        else:
-            confirm_command = f"ask_open_exception_file {self.filename} || read"
+        confirm_command = (
+            "read"
+            if self.filename is None
+            else f"ask_open_exception_file {self.filename} || read"
+        )
         command = f"cat {Path.log.console}; {confirm_command}"
         process = cli.run_in_console(command, title="Exception")
         process.communicate()  # make sure opening cli has finished before exiting
 
     @classmethod
     def visualize_in_active_tab(cls):
-        cli.run("cat", Path.log.console)
+        cli.launch("cat", Path.log.console)
 
     def save(self, path: Path, include_locals: bool = None):
         if include_locals is None:
