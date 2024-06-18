@@ -154,11 +154,12 @@ class ExcInfo:
             self.visualize_in_active_tab()
 
     def visualize_in_new_tab(self):
-        confirm_command = (
-            "read"
-            if self.filename is None
-            else f"ask_open_exception_file {self.filename} || read"
-        )
+        if "GITHUB_ACTIONS" in os.environ:
+            confirm_command = ""
+        elif self.filename is None:
+            confirm_command = "read"
+        else:
+            confirm_command = f"ask_open_exception_file {self.filename} || read"
         command = f"cat {Path.log.console}; {confirm_command}"
         process = cli.run_in_console(command, title="Exception")
         process.communicate()  # make sure opening cli has finished before exiting
