@@ -165,7 +165,8 @@ class ExcInfo:
 
     @classmethod
     def visualize_in_active_tab(cls):
-        cli.launch("cat", Path.log.console)
+        print("hier")
+        cli.run("cat", Path.log.console)
 
     def save(self, path: Path, include_locals: bool = None):
         if include_locals is None:
