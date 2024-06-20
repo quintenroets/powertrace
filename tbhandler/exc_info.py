@@ -145,6 +145,7 @@ class ExcInfo:
         can_visualize_in_new_tab = (
             "DISPLAY" in os.environ and "localhost" not in os.environ["DISPLAY"]
         )
+        print(can_visualize_in_new_tab)
         if can_visualize_in_new_tab:
             try:
                 self.visualize_in_new_tab()
