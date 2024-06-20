@@ -119,16 +119,23 @@ class ExcInfo:
                 exc._show_single()
 
     def _show_single(self):
+        print("aa")
         from . import monkeypatch  # noqa: E402, autoimport
 
         monkeypatch.run_custom_handlers(self.type, self.value)
+        print("bb")
 
         self.save(Path.log)
         if self.type and self.show_locals:
             self.save(Path.short_log, include_locals=False)
+        print("bc")
 
         self.visualize_in_console()
+        print("bc")
         self.check_debug()
+        import time
+
+        time.sleep(2)
         self.exit()
 
     def check_debug(self):
