@@ -1,7 +1,9 @@
 import os
+import time
 import pdb
 import sys
 import threading
+import time
 import traceback
 from dataclasses import dataclass
 from functools import cached_property
@@ -133,9 +135,7 @@ class ExcInfo:
         self.visualize_in_console()
         print("bc")
         self.check_debug()
-        import time
 
-        time.sleep(2)
         self.exit()
 
     def check_debug(self):
@@ -173,8 +173,9 @@ class ExcInfo:
 
     @classmethod
     def visualize_in_active_tab(cls):
-        print("hier")
         cli.run("cat", Path.log.console)
+        if "GITHUB_ACTIONS" in os.environ:
+            time.sleep(2)
 
     def save(self, path: Path, include_locals: bool = None):
         if include_locals is None:
