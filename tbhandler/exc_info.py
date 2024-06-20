@@ -2,6 +2,7 @@ import os
 import pdb
 import sys
 import threading
+import time
 import traceback
 from dataclasses import dataclass
 from functools import cached_property
@@ -165,7 +166,9 @@ class ExcInfo:
 
     @classmethod
     def visualize_in_active_tab(cls):
-        cli.launch("cat", Path.log.console)
+        cli.run("cat", Path.log.console)
+        if "GITHUB_ACTIONS" in os.environ:
+            time.sleep(2)
 
     def save(self, path: Path, include_locals: bool = None):
         if include_locals is None:
