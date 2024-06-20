@@ -1,5 +1,4 @@
 import os
-import time
 import pdb
 import sys
 import threading
@@ -121,21 +120,16 @@ class ExcInfo:
                 exc._show_single()
 
     def _show_single(self):
-        print("aa")
         from . import monkeypatch  # noqa: E402, autoimport
 
         monkeypatch.run_custom_handlers(self.type, self.value)
-        print("bb")
 
         self.save(Path.log)
         if self.type and self.show_locals:
             self.save(Path.short_log, include_locals=False)
-        print("bc")
 
         self.visualize_in_console()
-        print("bc")
         self.check_debug()
-
         self.exit()
 
     def check_debug(self):
@@ -152,7 +146,6 @@ class ExcInfo:
         can_visualize_in_new_tab = (
             "DISPLAY" in os.environ and "localhost" not in os.environ["DISPLAY"]
         )
-        print(can_visualize_in_new_tab)
         if can_visualize_in_new_tab:
             try:
                 self.visualize_in_new_tab()
