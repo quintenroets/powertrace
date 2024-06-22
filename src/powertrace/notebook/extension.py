@@ -7,4 +7,4 @@ def load_ipython_extension(_: int) -> None:
     pretty.install()
     # first install monkeypatch to make the traceback work in notebooks as well
     rich_monkeypatch.install()
-    traceback.install(show_locals=context.config.show_full_traceback)
+    traceback.install(show_locals=context.show_full_traceback)

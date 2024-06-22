@@ -35,7 +35,7 @@ class TraceVisualizer:
         loading_error = any(frame.name == loading_error_keyword for frame in frames)
         # generating locals on error during initial loading leads
         # to infinite recursive traceback handling and abortion
-        return context.config.show_full_traceback and not (
+        return context.show_full_traceback and not (
             loading_error or self.disable_show_locals
         )
 

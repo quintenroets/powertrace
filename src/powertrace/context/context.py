@@ -19,6 +19,10 @@ class Context(Context_[None, Config, None]):
         return "GITHUB_ACTIONS" in os.environ
 
     @property
+    def show_full_traceback(self) -> bool:
+        return os.environ.get("full_traceback", "false") != "false"
+
+    @property
     def is_running_in_main_thread(self) -> bool:
         return threading.current_thread() is threading.main_thread()
 
