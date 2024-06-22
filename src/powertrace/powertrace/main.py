@@ -33,6 +33,6 @@ def visualize_traceback(
     PowerTrace(traceback).visualize_traceback()
 
 
-def install() -> None:
+def install_traceback_hooks() -> None:
     sys.excepthook = excepthook
     threading.excepthook = threading_excepthook

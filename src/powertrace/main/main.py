@@ -24,7 +24,7 @@ def visualize_traceback(exit_after: bool = True, repeat: bool = True) -> None:
 def install_powertrace_hooks() -> None:
     from powertrace.powertrace import main
 
-    main.install()
+    main.install_traceback_hooks()
 
 
 def excepthook(*args: Any) -> None:
