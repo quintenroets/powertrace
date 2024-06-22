@@ -16,7 +16,7 @@ from rich.traceback import (
 
 
 @group()
-def _render_stack(self, stack: Stack) -> RenderResult:
+def _render_stack(self: Traceback, stack: Stack) -> RenderResult:
     path_highlighter = PathHighlighter()
     theme = self.theme
     code_cache: dict[str, str] = {}
@@ -137,33 +137,5 @@ def _render_stack(self, stack: Stack) -> RenderResult:
                 )
 
 
-def get_custom_handlers():
-    """
-    Specify custom exception handlers.
-    """
-    return {}
-
-
-def run_custom_handlers(exc_type, exc_value) -> None:
-    for handler, conditions in get_custom_handlers().items():
-        for error_type, error_messages in conditions.items():
-            for message in error_messages:
-                if isinstance(exc_value, error_type) and message in str(exc_value):
-                    handler(exc_value)
-
-
-def handle_exceptions(function):
-    """
-    Returns a exception handling decorator.
-    """
-
-    def decorator(exc_type, exc_value, *args, **kwargs):
-        run_custom_handlers(exc_type, exc_value)
-        return function(exc_type, exc_value, *args, **kwargs)
-
-    return decorator
-
-
 def install() -> None:
-    Traceback._render_stack = _render_stack
-    Traceback.from_exception = handle_exceptions(Traceback.from_exception)
+    Traceback._render_stack = _render_stack  # type: ignore[method-assign]

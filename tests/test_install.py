@@ -1,5 +1,5 @@
-import tbhandler
+import powertrace
 
 
-def test_install() -> None:
-    tbhandler.install()
+def test_install_hooks() -> None:
+    powertrace.install_traceback_hooks()
