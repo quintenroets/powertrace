@@ -1,45 +1,54 @@
 [project]
-name = "tbhandler"
-version = "0.1.3"
-description = "Automated detailed traceback visualization"
+name = "powertrace"
+version = "0.1.0"
+description = "Template for Python package published on PyPI"
 authors = [{name = "Quinten Roets", email = "qdr2104@columbia.edu"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "powercli",
-    "rich",
-    "superpathlib"
+    "package-utils[context] >=0.6.1, <1",
+    "powercli >=0.3.1, <1",
+    "rich >=13.7.1, <14",
+    "superpathlib >=2.0.4, <3"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pre-commit",
-]
-test = [
-    "pytest"
+    "package-dev-tools >=0.5.11, <1",
+    "package-dev-utils >=0.1.6, <1",
 ]
 
 [project.urls]
-"Source Code" = "https://github.com/quintenroets/tbhandler"
+"Source Code" = "https://github.com/quintenroets/powertrace"
 
 [project.scripts]
-ask_open_exception_file = "tbhandler.opener:main"
-install_sitecustomize = "tbhandler.sitecustomize_remover:main"
-
-[tool.setuptools]
-py-modules = [
-    "sitecustomize"
-]
-
-[tool.setuptools.packages.find]
-include = ["*"]
+ask_open_trackeback_file = "powertrace.cli:entry_point"
 
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[tool.coverage.run]
+command_line = "-m pytest tests"
+
+[tool.coverage.report]
+precision = 4
+fail_under = 100
+
+[tool.mypy]
+strict = true
+no_implicit_reexport = false
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src", ".",
+]
+
 [tool.ruff]
+fix = true
+
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -47,7 +56,12 @@ select = [
     "I",  # isort
     "UP",  # pyupgrade
 ]
-fix = true
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+
+[tool.setuptools.package-data]
+powertrace = ["py.typed"]

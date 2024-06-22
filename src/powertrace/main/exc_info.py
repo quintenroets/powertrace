@@ -39,7 +39,7 @@ class ExcInfo:
     use_original_handler: tuple = (RecursionError,)
 
     @property
-    def in_main_thread(self):
+    def in_main_thread(self) -> bool:
         return threading.current_thread() is threading.main_thread()
 
     @property
@@ -72,14 +72,14 @@ class ExcInfo:
             else Traceback()
         )
 
-    def show(self):
+    def show(self) -> None:
         try:
             self.safe_show()
         except Exception:  # noqa: E722
             # last resort when custom error handling fails
             traceback.print_exc()
 
-    def safe_show(self):
+    def safe_show(self) -> None:
         if self.type not in self.skipped_exception_types:
             with tb_mutex:
                 # only visualize the first traceback for crashing threads
@@ -87,7 +87,7 @@ class ExcInfo:
         elif self.type in self.use_original_handler:
             sys.__excepthook__(self.type, self.value, self.traceback)
 
-    def single_threaded_show(self):
+    def single_threaded_show(self) -> None:
         if not self.tb_handled or (self.in_main_thread and self.repeat):
             self.__class__.tb_handled = True
             self.show_single()
@@ -106,7 +106,7 @@ class ExcInfo:
             path = None
         return path
 
-    def show_single(self):
+    def show_single(self) -> None:
         try:
             self._show_single()
         except:  # noqa
@@ -119,7 +119,7 @@ class ExcInfo:
                 exc = ExcInfo(exit_after=self.exit_after)
                 exc._show_single()
 
-    def _show_single(self):
+    def _show_single(self) -> None:
         from . import monkeypatch  # noqa: E402, autoimport
 
         monkeypatch.run_custom_handlers(self.type, self.value)
@@ -132,17 +132,17 @@ class ExcInfo:
         self.check_debug()
         self.exit()
 
-    def check_debug(self):
+    def check_debug(self) -> None:
         should_debug = "tbhandler_DEBUG" in os.environ and sys.stdin.isatty()
         if should_debug:
             pdb.post_mortem(self.traceback)
 
-    def exit(self):
+    def exit(self) -> None:
         if self.exit_after and not self.in_main_thread:
             os._exit(1)  # force exit
             sys.exit(1)  # stop execution after error in threads as well
 
-    def visualize_in_console(self):
+    def visualize_in_console(self) -> None:
         can_visualize_in_new_tab = (
             "DISPLAY" in os.environ and "localhost" not in os.environ["DISPLAY"]
         )
@@ -154,7 +154,7 @@ class ExcInfo:
         if not can_visualize_in_new_tab:
             self.visualize_in_active_tab()
 
-    def visualize_in_new_tab(self):
+    def visualize_in_new_tab(self) -> None:
         confirm_command = (
             "read"
             if self.filename is None
@@ -165,12 +165,12 @@ class ExcInfo:
         process.communicate()  # make sure opening cli has finished before exiting
 
     @classmethod
-    def visualize_in_active_tab(cls):
+    def visualize_in_active_tab(cls) -> None:
         cli.run("cat", Path.log.console)
         if "GITHUB_ACTIONS" in os.environ:
             time.sleep(2)
 
-    def save(self, path: Path, include_locals: bool = None):
+    def save(self, path: Path, include_locals: bool = None) -> None:
         if include_locals is None:
             include_locals = self.show_locals
 

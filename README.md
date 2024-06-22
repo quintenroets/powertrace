@@ -1,28 +1,26 @@
-[![PyPI version](https://badge.fury.io/py/tbhandler.svg)](https://badge.fury.io/py/tbhandler)
+# Powertrace
+[![PyPI version](https://badge.fury.io/py/powertrace.svg)](https://badge.fury.io/py/powertrace)
+![Python version](https://img.shields.io/badge/python-3.10+-brightgreen)
+![Operating system](https://img.shields.io/badge/os-linux%20%7c%20macOS%20%7c%20windows-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
-# Traceback handler
 
-Module to notify user of errors in all scripts, even when they run without terminal
-* Traceback message in extended and easily readably format
-* Open message in new terminal tab if script is running without terminal
-* Developed for Linux OS where konsole application is available
+Detailed stack trace logging and visualization.
+* Rich traceback visualization
+* Also works for headless scripts
+* Easy to reproduce visualization
 
-## Installation
+## Usage
 
-```shell
-pip install tbhandler
-```
-
-This will create a new sitecustomize file. To overwrite existing sitecustomize file, run:
-
-```shell
-install_sitecustomize
-```
-
-Alternatively, you can use the manual installation of the tbhandler in each of your scripts.
-
-```shell
+Run
+```python
 import tbhandler
 
 tbhandler.install()
+```
+To install advanced traceback handling in your script.
+
+## Installation
+```shell
+pip install powertrace
 ```

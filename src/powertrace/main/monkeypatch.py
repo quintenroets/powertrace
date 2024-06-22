@@ -144,7 +144,7 @@ def get_custom_handlers():
     return {}
 
 
-def run_custom_handlers(exc_type, exc_value):
+def run_custom_handlers(exc_type, exc_value) -> None:
     for handler, conditions in get_custom_handlers().items():
         for error_type, error_messages in conditions.items():
             for message in error_messages:
@@ -164,6 +164,6 @@ def handle_exceptions(function):
     return decorator
 
 
-def install():
+def install() -> None:
     Traceback._render_stack = _render_stack
     Traceback.from_exception = handle_exceptions(Traceback.from_exception)

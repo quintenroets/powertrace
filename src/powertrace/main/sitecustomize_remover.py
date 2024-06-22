@@ -2,7 +2,7 @@ import cli
 from superpathlib import Path
 
 
-def main():
+def main() -> None:
     template_content = get_template_content()
     path = get_sitecustomize_path()
     while path.text != template_content:

@@ -1,12 +1,11 @@
 import os
 
 import pexpect
+import tbhandler
 from superpathlib import Path
 
-import tbhandler
 
-
-def test_error_handling():
+def test_error_handling() -> None:
     tbhandler.install()
     # make visualization in current tab
     os.environ.pop("DISPLAY", None)
@@ -14,7 +13,7 @@ def test_error_handling():
     process.expect(".*Exception.*")
 
 
-def test_exception_file_open():
+def test_exception_file_open() -> None:
     tbhandler.install()
     process = pexpect.spawn(f"ask_open_exception_file {Path.draft}")
     process.sendline("")

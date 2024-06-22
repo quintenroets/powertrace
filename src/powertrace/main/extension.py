@@ -1,4 +1,4 @@
-def load_ipython_extension(ip):
+def load_ipython_extension(ip) -> None:
     from rich import pretty, traceback
 
     from . import config, monkeypatch
