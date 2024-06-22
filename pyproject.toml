@@ -17,6 +17,7 @@ dependencies = [
 dev = [
     "package-dev-tools >=0.5.11, <1",
     "package-dev-utils >=0.1.6, <1",
+    "pexpect >=4.9.0 <5",
 ]
 
 [project.urls]
