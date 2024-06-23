@@ -16,15 +16,15 @@ def visualize_traceback(exit_after: bool = True, repeat: bool = True) -> None:
     """
     Visualize the current traceback.
     """
-    from powertrace.powertrace.main import visualize_traceback
+    from powertrace.powertrace.visualize import visualize_traceback
 
     visualize_traceback(exit_after=exit_after, repeat=repeat)
 
 
 def install_powertrace_hooks() -> None:
-    from powertrace.powertrace import main
+    from powertrace.powertrace import install
 
-    main.install_traceback_hooks()
+    install.install_traceback_hooks()
 
 
 def excepthook(*args: Any) -> None:

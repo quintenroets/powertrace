@@ -1,7 +1,6 @@
 import os
 import sys
 import threading
-from dataclasses import dataclass
 from functools import cached_property
 
 from package_utils.context import Context as Context_
@@ -9,14 +8,10 @@ from package_utils.context import Context as Context_
 from ..models import Config
 
 
-@dataclass
 class Context(Context_[None, Config, None]):
-    def __post_init__(self) -> None:
+    def __init__(self) -> None:
+        super().__init__(Config=Config)
         self._traceback_handled = False
-
-    @property
-    def is_running_in_ci(self) -> bool:
-        return "GITHUB_ACTIONS" in os.environ
 
     @property
     def show_full_traceback(self) -> bool:
@@ -50,4 +45,4 @@ class Context(Context_[None, Config, None]):
         return "DISPLAY" in os.environ and "localhost" not in os.environ["DISPLAY"]
 
 
-context = Context(Config=Config)
+context = Context()

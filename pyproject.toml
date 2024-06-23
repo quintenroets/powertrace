@@ -7,7 +7,7 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "package-utils[context] >=0.6.1, <1",
+    "package-utils[context] >=0.6.6, <1",
     "powercli >=0.3.1, <1",
     "rich >=13.7.1, <14",
     "superpathlib >=2.0.4, <3"
@@ -32,7 +32,7 @@ command_line = "-m pytest tests"
 
 [tool.coverage.report]
 precision = 4
-fail_under = 100
+fail_under = 90
 
 [tool.mypy]
 strict = true

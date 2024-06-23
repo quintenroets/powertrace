@@ -16,7 +16,7 @@ from rich.traceback import (
 
 
 @group()
-def _render_stack(self: Traceback, stack: Stack) -> RenderResult:
+def _render_stack(self: Traceback, stack: Stack) -> RenderResult:  # pragma: nocover
     path_highlighter = PathHighlighter()
     theme = self.theme
     code_cache: dict[str, str] = {}

@@ -8,7 +8,7 @@ from typing import TypeVar
 T = TypeVar("T", bound="Traceback")
 
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class Traceback:
     type_: type[BaseException] | None = None
     value: BaseException | None = None
@@ -26,9 +26,3 @@ class Traceback:
         traceback: TracebackType | None,
     ) -> T:
         return cls(type_, value, traceback)
-
-    @property
-    def as_tuple(
-        self,
-    ) -> tuple[type[BaseException] | None, BaseException | None, TracebackType | None]:
-        return self.type_, self.value, self.traceback

@@ -54,13 +54,13 @@ class TraceVisualizer:
             if self.traceback.filename is None
             else f"ask_open_exception_file {self.traceback.filename} || read"
         )
-        command = f"cat {Path.log.console}; {confirm_command}"
+        command = f"cat {Path.log.with_console_suffix}; {confirm_command}"
         process = cli.run_in_console(command, title="Exception")
         process.communicate()  # make sure opening cli has finished before exiting
 
     @classmethod
     def visualize_in_active_tab(cls) -> None:
-        cli.run("cat", Path.log.console)
+        cli.run("cat", Path.log.with_console_suffix)
         if context.is_running_in_ci:
             time.sleep(2)
 

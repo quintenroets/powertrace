@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from functools import cache
 from traceback import walk_tb
 from typing import Any
@@ -9,7 +8,6 @@ from .. import models
 from ..models import Path
 
 
-@dataclass
 class Traceback(models.Traceback):
     @cache
     def construct_message(self, show_locals: bool) -> RichTraceback:

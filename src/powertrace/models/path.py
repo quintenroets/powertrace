@@ -13,12 +13,6 @@ class Path(superpathlib.Path):
         path = cls.script_assets / ".tracebacks"
         return cast(T, path)
 
-    @classmethod
-    @classproperty
-    def config(cls: type[T]) -> T:
-        path = cls.assets / "config" / "config.yaml"
-        return cast(T, path)
-
     @property
     def with_console_suffix(self: T) -> T:
         return self.with_stem("." + self.stem)

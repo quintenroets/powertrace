@@ -17,7 +17,6 @@ class PowerTrace:
         SystemExit,
         RecursionError,
         BrokenPipeError,
-        None,
     )
     use_original_handler: tuple[type[BaseException], ...] = (RecursionError,)
 
