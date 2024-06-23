@@ -1,3 +1,0 @@
-powercli
-rich
-superpathlib
