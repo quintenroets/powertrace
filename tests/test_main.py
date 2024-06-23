@@ -16,15 +16,18 @@ def test_extension() -> None:
 
 
 @patch("cli.run_in_console")
-def test_powertrace(_: MagicMock) -> None:
+def test_powertrace(mocked_run: MagicMock) -> None:
+    os.environ["DISPLAY"] = ":0.0"
     try:
         raise ValueError
     except ValueError:
         powertrace.visualize_traceback(repeat=False)
+    mocked_run.assert_called_once()
 
 
 @patch("cli.run_in_console")
 def test_only_visualized_once(mocked_run: MagicMock) -> None:
+    os.environ["DISPLAY"] = ":0.0"
     try:
         raise ValueError
     except ValueError:
