@@ -24,7 +24,9 @@ def visualize_traceback(exit_after: bool = True, repeat: bool = True) -> None:
 def install_powertrace_hooks() -> None:
     from powertrace.powertrace import install
 
-    install.install_traceback_hooks()
+    if not is_notebook():
+        #  Notebook setup is done in separate extension
+        install.install_traceback_hooks()
 
 
 def excepthook(*args: Any) -> None:
@@ -40,3 +42,13 @@ def threading_excepthook(*args: Any) -> None:
 def install_traceback_hooks() -> None:
     sys.excepthook = excepthook
     threading.excepthook = threading_excepthook
+
+
+def is_notebook() -> bool:
+    try:
+        get_ipython().__class__.__name__ == "ZMQInteractiveShell"  # type: ignore[name-defined]
+    except NameError:
+        notebook = False
+    else:
+        notebook = True
+    return notebook
