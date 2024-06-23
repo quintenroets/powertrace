@@ -14,13 +14,36 @@ Detailed stack trace logging and visualization.
 
 Run
 ```python
-import tbhandler
+import powertrace
 
-tbhandler.install()
+powertrace.visualize_traceback()
 ```
-To install advanced traceback handling in your script.
+To visualize the current traceback.
+
+Run
+```python
+import powertrace
+
+powertrace.install_traceback_hooks()
+```
+In the beginning of your script to enable advanced traceback handling.
 
 ## Installation
 ```shell
 pip install powertrace
 ```
+
+or
+
+```shell
+pip install powertrace-hooks
+```
+to enable advanced traceback handling in all scripts without having to run
+
+```python
+import powertrace
+
+powertrace.install_traceback_hooks()
+```
+
+at the start of every script.

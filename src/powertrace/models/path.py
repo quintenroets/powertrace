@@ -20,11 +20,11 @@ class Path(superpathlib.Path):
     @classmethod
     @classproperty
     def log(cls: type[T]) -> T:
-        path = cls.logs / "error.txt"
+        path = cls.logs / "traceback.txt"
         return cast(T, path)
 
     @classmethod
     @classproperty
     def short_log(cls: type[T]) -> T:
-        path = cls.logs / "short_error.txt"
+        path = cls.logs / "short_traceback.txt"
         return cast(T, path)
