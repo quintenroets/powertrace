@@ -5,7 +5,7 @@ from functools import cached_property
 
 from package_utils.context import Context as Context_
 
-from ..models import Config
+from powertrace.models import Config
 
 
 class Context(Context_[None, Config, None]):
@@ -15,7 +15,7 @@ class Context(Context_[None, Config, None]):
 
     @property
     def show_full_traceback(self) -> bool:
-        return os.environ.get("full_traceback", "false") != "false"
+        return os.environ.get("FULL_TRACEBACK", "false") != "false"
 
     @property
     def is_running_in_main_thread(self) -> bool:

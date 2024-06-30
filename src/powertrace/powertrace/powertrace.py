@@ -3,7 +3,8 @@ import traceback
 from dataclasses import dataclass
 from typing import ClassVar, cast
 
-from ..context import context
+from powertrace.context import context
+
 from .traceback import Traceback
 from .visualizer import TraceVisualizer
 
@@ -23,7 +24,7 @@ class PowerTrace:
     def visualize_traceback(self) -> None:
         try:
             self._visualize_traceback()
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: BLE001
             # use builtin traceback visualization when custom visualization fails
             traceback.print_exc()
 
@@ -45,12 +46,12 @@ class PowerTrace:
         visualizer = TraceVisualizer(traceback=self.traceback)
         try:
             visualizer.visualize_traceback_atomic()
-        except:  # noqa
+        except Exception:  # noqa: BLE001
             visualizer.disable_show_locals = True
             try:
                 # try without locals when message construction fails
                 visualizer.visualize_traceback_atomic()
-            except Exception:
+            except Exception:  # noqa: BLE001
                 # visualize failure to construct message
                 visualizer.traceback = Traceback()
                 visualizer.visualize_traceback_atomic()

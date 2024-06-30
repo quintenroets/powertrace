@@ -1,7 +1,8 @@
 def load_ipython_extension(_: int) -> None:
     from rich import pretty, traceback
 
-    from ..context import context
+    from powertrace.context import context
+
     from . import rich_monkeypatch
 
     pretty.install()

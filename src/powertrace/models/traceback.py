@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-import threading
 from dataclasses import dataclass
-from types import TracebackType
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
+
+if TYPE_CHECKING:
+    import threading
+    from types import TracebackType
 
 T = TypeVar("T", bound="Traceback")
 
