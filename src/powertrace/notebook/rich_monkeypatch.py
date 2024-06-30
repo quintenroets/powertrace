@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from pathlib import Path
 
 from rich.traceback import (
     Columns,
@@ -16,7 +17,10 @@ from rich.traceback import (
 
 
 @group()
-def _render_stack(self: Traceback, stack: Stack) -> RenderResult:  # pragma: nocover
+def _render_stack(  # pragma: nocover # noqa: C901
+    self: Traceback,
+    stack: Stack,
+) -> RenderResult:
     path_highlighter = PathHighlighter()
     theme = self.theme
     code_cache: dict[str, str] = {}
@@ -32,7 +36,8 @@ def _render_stack(self: Traceback, stack: Stack) -> RenderResult:  # pragma: noc
         """
         code = code_cache.get(filename)
         if code is None:
-            with open(filename, encoding="utf-8", errors="replace") as code_file:
+            path = Path(filename)
+            with path.open(encoding="utf-8", errors="replace") as code_file:
                 code = code_file.read()
             code_cache[filename] = code
         return code
@@ -119,9 +124,9 @@ def _render_stack(self: Traceback, stack: Stack) -> RenderResult:  # pragma: noc
                             padding=1,
                         )
                     )
-            except Exception as error:
+            except Exception as exception:  # noqa: BLE001
                 yield Text.assemble(
-                    (f"\n{error}", "traceback.error"),
+                    (f"\n{exception}", "traceback.error"),
                 )
             else:
                 yield (
@@ -138,4 +143,4 @@ def _render_stack(self: Traceback, stack: Stack) -> RenderResult:  # pragma: noc
 
 
 def install() -> None:
-    Traceback._render_stack = _render_stack  # type: ignore[method-assign]
+    Traceback._render_stack = _render_stack  # type: ignore[method-assign] # noqa: SLF001

@@ -19,7 +19,7 @@ def test_extension() -> None:
 def test_powertrace(mocked_run: MagicMock) -> None:
     os.environ["DISPLAY"] = ":0.0"
     try:
-        raise ValueError
+        raise ValueError  # noqa: TRY301
     except ValueError:
         powertrace.visualize_traceback(repeat=False)
     mocked_run.assert_called_once()
@@ -29,7 +29,7 @@ def test_powertrace(mocked_run: MagicMock) -> None:
 def test_only_visualized_once(mocked_run: MagicMock) -> None:
     os.environ["DISPLAY"] = ":0.0"
     try:
-        raise ValueError
+        raise ValueError  # noqa: TRY301
     except ValueError:
         powertrace.visualize_traceback()
         powertrace.visualize_traceback(repeat=False)
@@ -55,6 +55,6 @@ def test_visualize_in_active_tab() -> None:
     # make visualization in current tab
     os.environ.pop("DISPLAY", None)
     try:
-        raise ValueError
+        raise ValueError  # noqa: TRY301
     except ValueError:
         powertrace.visualize_traceback()

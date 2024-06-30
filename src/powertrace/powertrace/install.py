@@ -12,7 +12,9 @@ def threading_excepthook(info: threading.ExceptHookArgs) -> None:
 
 
 def excepthook(
-    type_: type[BaseException], value: BaseException, traceback: TracebackType | None
+    type_: type[BaseException],
+    value: BaseException,
+    traceback: TracebackType | None,
 ) -> None:
     traceback_info = Traceback.from_tuple(type_, value, traceback)
     visualize.visualize_traceback(traceback_info, repeat=False)

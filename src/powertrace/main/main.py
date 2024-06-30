@@ -9,10 +9,10 @@ file to the microseconds scale.
 
 import sys
 import threading
-from typing import Any
+from typing import Any, cast
 
 
-def visualize_traceback(exit_after: bool = True, repeat: bool = True) -> None:
+def visualize_traceback(*, exit_after: bool = True, repeat: bool = True) -> None:
     """
     Visualize the current traceback.
     """
@@ -46,9 +46,8 @@ def install_traceback_hooks() -> None:
 
 def is_notebook() -> bool:
     try:
-        get_ipython().__class__.__name__ == "ZMQInteractiveShell"  # type: ignore[name-defined]
+        name = get_ipython().__class__.__name__  # type: ignore[name-defined]
+        notebook = name == "ZMQInteractiveShell"
     except NameError:
         notebook = False
-    else:
-        notebook = True
-    return notebook
+    return cast(bool, notebook)

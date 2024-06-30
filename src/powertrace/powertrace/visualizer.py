@@ -1,5 +1,5 @@
 import os
-import pdb
+import pdb  # noqa: T100
 import sys
 import time
 from dataclasses import dataclass
@@ -7,8 +7,9 @@ from dataclasses import dataclass
 import cli
 from rich.console import Console
 
-from ..context import context
-from ..models import Path
+from powertrace.context import context
+from powertrace.models import Path
+
 from .traceback import Traceback
 
 
