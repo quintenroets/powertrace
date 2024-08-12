@@ -66,7 +66,7 @@ def _render_stack(  # pragma: nocover # noqa: C901
             continue
 
         if excluded:
-            assert exclude_frames is not None
+            assert exclude_frames is not None  # noqa: S101
             yield Text(
                 f"\n... {len(exclude_frames)} frames hidden ...",
                 justify="center",
