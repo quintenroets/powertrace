@@ -11,7 +11,7 @@ Detailed stack trace logging and visualization:
 * Stacktrace logging
 * Easily reproducible visualization
 
-![example](https://github.com/quintenroets/powertrace/blob/example/assets/examples/visualization.png?raw=true)
+![example](https://github.com/quintenroets/powertrace/blob/main/assets/examples/visualization.png?raw=true)
 
 ## Usage
 
