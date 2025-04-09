@@ -50,4 +50,4 @@ def is_notebook() -> bool:
         notebook = name == "ZMQInteractiveShell"
     except NameError:
         notebook = False
-    return cast(bool, notebook)
+    return cast("bool", notebook)
