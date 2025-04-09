@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypeVar
 
+from typing_extensions import Self
+
 if TYPE_CHECKING:
     import threading
     from types import TracebackType
@@ -17,14 +19,14 @@ class Traceback:
     traceback: TracebackType | None = None
 
     @classmethod
-    def from_info(cls: type[T], info: threading.ExceptHookArgs) -> T:
+    def from_info(cls, info: threading.ExceptHookArgs) -> Self:
         return cls(info.exc_type, info.exc_value, info.exc_traceback)
 
     @classmethod
     def from_tuple(
-        cls: type[T],
+        cls,
         type_: type[BaseException],
         value: BaseException,
         traceback: TracebackType | None,
-    ) -> T:
+    ) -> Self:
         return cls(type_, value, traceback)
