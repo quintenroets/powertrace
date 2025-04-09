@@ -10,7 +10,6 @@ T = TypeVar("T", bound="Path")
 class Path(superpathlib.Path):
     @classmethod
     @classproperty
-<<<<<<< HEAD
     def logs(cls: type[T]) -> T:
         path = cls.script_assets / ".tracebacks"
         return cast(T, path)
@@ -30,19 +29,3 @@ class Path(superpathlib.Path):
     def short_log(cls: type[T]) -> T:
         path = cls.logs / "short_traceback.txt"
         return cast(T, path)
-=======
-    def source_root(cls) -> Self:
-        return cls(__file__).parent.parent
-
-    @classmethod
-    @classproperty
-    def assets(cls) -> Self:
-        path = cls.script_assets / cls.source_root.name
-        return cast("Self", path)
-
-    @classmethod
-    @classproperty
-    def config(cls) -> Self:
-        path = cls.assets / "config" / "config.yaml"
-        return cast("Self", path)
->>>>>>> template
