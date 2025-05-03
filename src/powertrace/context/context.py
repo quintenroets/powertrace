@@ -3,7 +3,13 @@ import sys
 import threading
 from functools import cached_property
 
+<<<<<<< HEAD
 from package_utils.context import Context as Context_
+=======
+from .config import Config
+from .options import Options
+from .secrets_ import Secrets
+>>>>>>> template
 
 from powertrace.models import Config
 

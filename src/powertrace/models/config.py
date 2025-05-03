@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from dataclasses import dataclass
 
 
@@ -5,3 +6,5 @@ from dataclasses import dataclass
 class Config:
     exit_after: bool = True
     repeat: bool = True
+=======
+>>>>>>> template
