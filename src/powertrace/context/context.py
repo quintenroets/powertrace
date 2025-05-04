@@ -5,7 +5,7 @@ from functools import cached_property
 
 from package_utils.context import Context as Context_
 
-from powertrace.models import Config
+from .config import Config
 
 
 class Context(Context_[None, Config, None]):
