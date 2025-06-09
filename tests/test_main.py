@@ -52,6 +52,7 @@ def verify_powertrace(exception_type: type[Exception] = RuntimeError) -> None:
 
 @patch("cli.run_in_console")
 @new_tab_context
+@patch.object(Context, "show_full_traceback", new=True)
 def test_powertrace(mocked_run: MagicMock) -> None:
     verify_powertrace()
     mocked_run.assert_called_once()
