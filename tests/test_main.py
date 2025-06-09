@@ -124,6 +124,6 @@ def test_show_locals() -> None:
     verify_powertrace()
 
 
-@patch("os.getenv", new=":0.0")
+@patch("os.environ", new={"DISPLAY": ":0.0"})
 def test_can_visualize_in_same_tab() -> None:
     assert context.can_visualize_in_new_tab
