@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, TypeVar
 
 from typing_extensions import Self
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: nocover
     import threading
     from types import TracebackType
 

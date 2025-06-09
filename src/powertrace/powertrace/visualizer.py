@@ -59,7 +59,7 @@ class TraceVisualizer:
     def visualize_in_active_tab(cls) -> None:
         cli.run("cat", Path.log.with_console_suffix)
         if context.is_running_in_ci:
-            time.sleep(2)
+            time.sleep(2)  # pragma: nocover
 
     def save(self, path: Path, show_locals: bool | None = None) -> None:
         if show_locals is None:
@@ -73,6 +73,8 @@ class TraceVisualizer:
 
     @classmethod
     def exit(cls) -> None:
-        if context.config.exit_after and not context.is_running_in_main_thread:
+        if (
+            context.config.exit_after and not context.is_running_in_main_thread
+        ):  # pragma: nocover
             os._exit(1)  # force exit
             sys.exit(1)  # stop execution after error in threads as well

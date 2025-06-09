@@ -1,7 +1,7 @@
 import sys
 import traceback
 from dataclasses import dataclass
-from typing import ClassVar, cast
+from typing import cast
 
 from powertrace.context import context
 
@@ -12,7 +12,6 @@ from .visualizer import TraceVisualizer
 @dataclass
 class PowerTrace:
     traceback: Traceback
-    tb_handled: ClassVar[bool] = False
     skipped_exception_types: tuple[type[BaseException] | None, ...] = (
         KeyboardInterrupt,
         SystemExit,
