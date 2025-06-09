@@ -47,7 +47,7 @@ def install_traceback_hooks() -> None:
 def is_notebook() -> bool:
     try:
         name = get_ipython().__class__.__name__  # type: ignore[name-defined]
-        notebook = name == "ZMQInteractiveShell"
+        notebook = name == "ZMQInteractiveShell"  # pragma: nocover
     except NameError:
         notebook = False
     return cast("bool", notebook)
