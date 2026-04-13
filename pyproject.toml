@@ -9,7 +9,7 @@ requires-python = ">=3.10, <3.14"
 dependencies = [
     "package-utils[context] >=0.6.6, <1",
     "powercli >=0.3.7, <1",
-    "rich >=13.7.1, <15",
+    "rich >=13.7.1, <16",
     "superpathlib >=2.0.4, <3"
 ]
 
