@@ -61,7 +61,7 @@ class TraceVisualizer:
         if context.is_running_in_ci:
             time.sleep(2)  # pragma: nocover
 
-    def save(self, path: Path, show_locals: bool | None = None) -> None:
+    def save(self, path: Path, *, show_locals: bool | None = None) -> None:
         if show_locals is None:
             show_locals = self.should_show_locals
 

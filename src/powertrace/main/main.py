@@ -16,13 +16,13 @@ def visualize_traceback(*, exit_after: bool = True, repeat: bool = True) -> None
     """
     Visualize the current traceback.
     """
-    from powertrace.powertrace.visualize import visualize_traceback
+    from powertrace.powertrace.visualize import visualize_traceback  # noqa: PLC0415
 
     visualize_traceback(exit_after=exit_after, repeat=repeat)
 
 
 def install_powertrace_hooks() -> None:
-    from powertrace.powertrace import install
+    from powertrace.powertrace import install  # noqa: PLC0415
 
     if not is_notebook():
         #  Notebook setup is done in separate extension
