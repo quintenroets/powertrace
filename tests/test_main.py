@@ -50,7 +50,7 @@ def verify_powertrace(exception_type: type[Exception] = RuntimeError) -> None:
         excepthook(exception_type, exception_type(), exception.__traceback__)
 
 
-@patch("cli.run_in_console")
+@patch("cli.run_in_new_tab")
 @new_tab_context
 @patch.object(Context, "show_full_traceback", new=True)
 def test_powertrace(mocked_run: MagicMock) -> None:
@@ -65,7 +65,7 @@ def test_exception_recovery(mocked_visualize: MagicMock) -> None:
     mocked_visualize.assert_called_once()
 
 
-@patch("cli.run_in_console")
+@patch("cli.run_in_new_tab")
 @patch.object(TraceVisualizer, "visualize_traceback_atomic", side_effect=RuntimeError)
 @new_tab_context
 def test_atomic_exception_recovery(
@@ -77,7 +77,7 @@ def test_atomic_exception_recovery(
     mocked_visualize.assert_called()
 
 
-@patch("cli.run_in_console")
+@patch("cli.run_in_new_tab")
 @new_tab_context
 def test_only_visualized_once(mocked_run: MagicMock) -> None:
     try:
@@ -89,15 +89,15 @@ def test_only_visualized_once(mocked_run: MagicMock) -> None:
 
 
 @patch("cli.run")
-@patch("cli.run_in_console", side_effect=FileNotFoundError)
+@patch("cli.run_in_new_tab", side_effect=FileNotFoundError)
 @new_tab_context
 def test_fallback_to_visualize_in_active_tab(
-    mocked_run_in_console: MagicMock,
+    mocked_run_in_new_tab: MagicMock,
     mocked_run: MagicMock,
 ) -> None:
     verify_powertrace()
     mocked_run.assert_called_once()
-    mocked_run_in_console.assert_called_once()
+    mocked_run_in_new_tab.assert_called_once()
 
 
 @patch("cli.run")

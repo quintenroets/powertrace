@@ -52,7 +52,7 @@ class TraceVisualizer:
     @classmethod
     def visualize_in_new_tab(cls) -> None:
         command = f"cat {Path.log.with_console_suffix}; read && exit"
-        process = cli.run_in_console(command, title="Exception")
+        process = cli.run_in_new_tab(command, title="Exception")
         process.communicate()  # make sure opening cli has finished before exiting
 
     @classmethod
@@ -61,7 +61,7 @@ class TraceVisualizer:
         if context.is_running_in_ci:
             time.sleep(2)  # pragma: nocover
 
-    def save(self, path: Path, show_locals: bool | None = None) -> None:
+    def save(self, path: Path, *, show_locals: bool | None = None) -> None:
         if show_locals is None:
             show_locals = self.should_show_locals
 
