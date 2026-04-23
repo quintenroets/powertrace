@@ -52,7 +52,7 @@ class TraceVisualizer:
     @classmethod
     def visualize_in_new_tab(cls) -> None:
         command = f"cat {Path.log.with_console_suffix}; read && exit"
-        process = cli.run_in_console(command, title="Exception")
+        process = cli.run_in_new_tab(command, title="Exception")
         process.communicate()  # make sure opening cli has finished before exiting
 
     @classmethod
