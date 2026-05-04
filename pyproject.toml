@@ -9,13 +9,16 @@ requires-python = ">=3.10, <3.14"
 dependencies = [
     "package-utils[context] >=0.8.3, <1",
     "powercli >=0.4.0, <1",
+<<<<<<< HEAD
     "rich >=13.7.1, <16",
     "superpathlib >=2.0.13, <3"
+=======
+>>>>>>> template
 ]
 
 [project.optional-dependencies]
 dev = [
-    "package-dev-tools >=0.8.0, <1",
+    "package-dev-tools >=0.8.1, <1",
     "package-dev-utils >=0.1.6, <1",
     "pexpect >=4.9.0, <5",
 ]
