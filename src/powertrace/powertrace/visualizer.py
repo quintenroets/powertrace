@@ -41,7 +41,10 @@ class TraceVisualizer:
         )
 
     def visualize_in_console(self) -> None:
-        if context.can_visualize_in_new_tab:
+        should_visualize_in_new_tab = (
+            context.has_window_server and not context.stderr_is_observed
+        )
+        if should_visualize_in_new_tab:
             try:
                 self.visualize_in_new_tab()
             except FileNotFoundError:

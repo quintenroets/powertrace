@@ -1,5 +1,8 @@
+import os
 import sys
 import threading
+from io import StringIO
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -11,8 +14,16 @@ from powertrace.powertrace.install import excepthook
 from powertrace.powertrace.powertrace import PowerTrace
 from powertrace.powertrace.visualizer import TraceVisualizer
 
-new_tab_context = patch.object(Context, "can_visualize_in_new_tab", new=True)
-no_new_tab_context = patch.object(Context, "can_visualize_in_new_tab", new=False)
+new_tab_context = patch.multiple(
+    Context,
+    has_window_server=True,
+    stderr_is_observed=False,
+)
+no_new_tab_context = patch.multiple(
+    Context,
+    has_window_server=True,
+    stderr_is_observed=True,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -125,6 +136,21 @@ def test_show_locals() -> None:
     verify_powertrace()
 
 
-@patch("os.environ", new={"DISPLAY": ":0.0"})
-def test_can_visualize_in_same_tab() -> None:
-    assert context.can_visualize_in_new_tab
+@patch.dict(os.environ, {"DISPLAY": ":0"}, clear=True)
+def test_has_window_server() -> None:
+    assert context.has_window_server
+
+
+def test_stderr_to_file_is_observed(tmp_path: Path) -> None:
+    with (tmp_path / "stderr").open("w") as stderr, patch("sys.stderr", stderr):
+        assert context.stderr_is_observed
+
+
+def test_stderr_to_devnull_is_not_observed() -> None:
+    with Path(os.devnull).open("w") as stderr, patch("sys.stderr", stderr):
+        assert not context.stderr_is_observed
+
+
+def test_stderr_without_fileno_is_not_observed() -> None:
+    with patch("sys.stderr", StringIO()):
+        assert not context.stderr_is_observed
