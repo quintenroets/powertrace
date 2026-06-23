@@ -1,4 +1,5 @@
 import os
+import stat
 import sys
 import threading
 from functools import cached_property
@@ -41,8 +42,22 @@ class Context(Context_[None, Config, None]):
         return "POWERTRACE_DEBUG" in os.environ and sys.stdin.isatty()
 
     @property
-    def can_visualize_in_new_tab(self) -> bool:
+    def has_window_server(self) -> bool:
         return "DISPLAY" in os.environ and "localhost" not in os.environ["DISPLAY"]
+
+    @property
+    def stderr_is_observed(self) -> bool:
+        try:
+            fd = sys.stderr.fileno()
+            mode = os.fstat(fd).st_mode
+        except (OSError, ValueError):
+            return False
+        return (
+            os.isatty(fd)
+            or stat.S_ISFIFO(mode)
+            or stat.S_ISREG(mode)
+            or stat.S_ISSOCK(mode)
+        )
 
 
 context = Context()
