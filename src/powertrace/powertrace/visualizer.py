@@ -42,7 +42,7 @@ class TraceVisualizer:
 
     def visualize_in_console(self) -> None:
         should_visualize_in_new_tab = (
-            context.has_window_server and not context.stderr_is_observed
+            context.has_window_server and not context.output_is_observed
         )
         if should_visualize_in_new_tab:
             try:
@@ -60,7 +60,7 @@ class TraceVisualizer:
 
     @classmethod
     def visualize_in_active_tab(cls) -> None:
-        cli.run("cat", Path.log.with_console_suffix)
+        cli.run("cat", Path.log.with_console_suffix, stdout=sys.stderr)
         if context.is_running_in_ci:
             time.sleep(2)  # pragma: nocover
 

@@ -3,6 +3,7 @@ import stat
 import sys
 import threading
 from functools import cached_property
+from typing import TextIO
 
 from package_utils.context import Context as Context_
 
@@ -46,9 +47,14 @@ class Context(Context_[None, Config, None]):
         return "DISPLAY" in os.environ and "localhost" not in os.environ["DISPLAY"]
 
     @property
-    def stderr_is_observed(self) -> bool:
+    def output_is_observed(self) -> bool:
+        streams = (sys.stderr, sys.stdout)
+        return any(self.stream_is_observed(stream) for stream in streams)
+
+    @staticmethod
+    def stream_is_observed(stream: TextIO) -> bool:
         try:
-            fd = sys.stderr.fileno()
+            fd = stream.fileno()
             mode = os.fstat(fd).st_mode
         except (OSError, ValueError):
             return False

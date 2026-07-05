@@ -17,12 +17,12 @@ from powertrace.powertrace.visualizer import TraceVisualizer
 new_tab_context = patch.multiple(
     Context,
     has_window_server=True,
-    stderr_is_observed=False,
+    stream_is_observed=MagicMock(return_value=False),
 )
 no_new_tab_context = patch.multiple(
     Context,
     has_window_server=True,
-    stderr_is_observed=True,
+    stream_is_observed=MagicMock(return_value=True),
 )
 
 
@@ -141,16 +141,15 @@ def test_has_window_server() -> None:
     assert context.has_window_server
 
 
-def test_stderr_to_file_is_observed(tmp_path: Path) -> None:
-    with (tmp_path / "stderr").open("w") as stderr, patch("sys.stderr", stderr):
-        assert context.stderr_is_observed
+def test_stream_to_file_is_observed(tmp_path: Path) -> None:
+    with (tmp_path / "stream").open("w") as stream:
+        assert context.stream_is_observed(stream)
 
 
-def test_stderr_to_devnull_is_not_observed() -> None:
-    with Path(os.devnull).open("w") as stderr, patch("sys.stderr", stderr):
-        assert not context.stderr_is_observed
+def test_stream_to_devnull_is_not_observed() -> None:
+    with Path(os.devnull).open("w") as stream:
+        assert not context.stream_is_observed(stream)
 
 
-def test_stderr_without_fileno_is_not_observed() -> None:
-    with patch("sys.stderr", StringIO()):
-        assert not context.stderr_is_observed
+def test_stream_without_fileno_is_not_observed() -> None:
+    assert not context.stream_is_observed(StringIO())
