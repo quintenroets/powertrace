@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, TypeVar
-
-from typing_extensions import Self
+from typing import TYPE_CHECKING, Self, TypeVar
 
 if TYPE_CHECKING:  # pragma: nocover
     import threading
