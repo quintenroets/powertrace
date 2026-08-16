@@ -9,7 +9,7 @@ file to the microseconds scale.
 
 import sys
 import threading
-from typing import Any, cast
+from typing import Any
 
 
 def visualize_traceback(*, exit_after: bool = True, repeat: bool = True) -> None:
@@ -24,9 +24,7 @@ def visualize_traceback(*, exit_after: bool = True, repeat: bool = True) -> None
 def install_powertrace_hooks() -> None:
     from powertrace.powertrace import install  # noqa: PLC0415
 
-    if not is_notebook():
-        #  Notebook setup is done in separate extension
-        install.install_traceback_hooks()
+    install.install_traceback_hooks()
 
 
 def excepthook(*args: Any) -> None:
@@ -42,12 +40,3 @@ def threading_excepthook(*args: Any) -> None:
 def install_traceback_hooks() -> None:
     sys.excepthook = excepthook
     threading.excepthook = threading_excepthook
-
-
-def is_notebook() -> bool:
-    try:
-        name = get_ipython().__class__.__name__  # type: ignore[name-defined]
-        notebook = name == "ZMQInteractiveShell"  # pragma: nocover
-    except NameError:
-        notebook = False
-    return cast("bool", notebook)

@@ -9,7 +9,6 @@ import pytest
 
 import powertrace
 from powertrace.context import Context, context
-from powertrace.notebook import load_ipython_extension
 from powertrace.powertrace.install import excepthook
 from powertrace.powertrace.powertrace import PowerTrace
 from powertrace.powertrace.visualizer import TraceVisualizer
@@ -33,10 +32,6 @@ def reset_traceback_handled() -> None:
 
 def test_install_hooks() -> None:
     powertrace.install_traceback_hooks()
-
-
-def test_extension() -> None:
-    load_ipython_extension(0)
 
 
 @patch("powertrace.powertrace.visualize.visualize_traceback")
