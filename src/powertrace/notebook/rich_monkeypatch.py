@@ -26,13 +26,15 @@ def _render_stack(  # pragma: nocover # noqa: C901
     code_cache: dict[str, str] = {}
 
     def read_code(filename: str) -> str:
-        """Read files, and cache results on filename.
+        """
+        Read files, and cache results on filename.
 
         Args:
             filename (str): Filename to read
 
         Returns:
             str: Contents of file
+
         """
         code = code_cache.get(filename)
         if code is None:

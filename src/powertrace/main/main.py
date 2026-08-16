@@ -1,4 +1,5 @@
-"""This file can be imported included in sitecustomize files.
+"""
+Can be included in sitecustomize files.
 
 In that case, the code below is executed before every script. As a
 result, its runtime performance is critical. The hooks and functions
