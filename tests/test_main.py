@@ -41,6 +41,13 @@ def test_except_hook(mocked_visualize: MagicMock) -> None:
     mocked_visualize.assert_called_once()
 
 
+@patch("powertrace.main.main.install_powertrace_hooks")
+def test_interrupt_except_hook(mocked_install: MagicMock) -> None:
+    powertrace.install_traceback_hooks()
+    sys.excepthook(KeyboardInterrupt, KeyboardInterrupt(), None)
+    mocked_install.assert_not_called()
+
+
 @patch("powertrace.powertrace.visualize.visualize_traceback")
 def test_threading_except_hook(mocked_visualize: MagicMock) -> None:
     powertrace.install_traceback_hooks()

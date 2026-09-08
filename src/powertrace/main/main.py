@@ -28,9 +28,11 @@ def install_powertrace_hooks() -> None:
     install.install_traceback_hooks()
 
 
-def excepthook(*args: Any) -> None:
-    install_powertrace_hooks()
-    sys.excepthook(*args)
+def excepthook(type_: type[BaseException], *args: Any) -> None:
+    # importing libraries clears interpreter's interrupt exit status
+    if not issubclass(type_, KeyboardInterrupt):
+        install_powertrace_hooks()
+        sys.excepthook(type_, *args)
 
 
 def threading_excepthook(*args: Any) -> None:
