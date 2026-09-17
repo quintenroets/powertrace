@@ -37,7 +37,7 @@ class PowerTrace:
                 # only visualize the first traceback for crashing threads
                 self.visualize_traceback_atomic()
         elif self.traceback.type_ in self.use_original_handler:
-            value = cast("BaseException", None)
+            value = cast("BaseException", self.traceback.value)
             sys.__excepthook__(self.traceback.type_, value, self.traceback.traceback)
 
     def visualize_traceback_atomic(self) -> None:
