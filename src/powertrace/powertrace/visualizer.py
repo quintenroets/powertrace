@@ -1,12 +1,14 @@
+import os
 import pdb  # noqa: T100
+import stat
 import sys
 import time
 from dataclasses import dataclass
+from typing import TextIO
 
 import cli
 from rich.console import Console
 
-from powertrace.context import context
 from powertrace.models import Path
 
 from .traceback import Traceback
@@ -23,26 +25,22 @@ class TraceVisualizer:
             self.save(Path.short_log, show_locals=False)
 
         self.visualize_in_console()
-        if context.should_debug:
+        if "POWERTRACE_DEBUG" in os.environ and sys.stdin.isatty():
             pdb.post_mortem(self.traceback.traceback)
 
     @property
     def should_show_locals(self) -> bool:
+        show_full_traceback = os.environ.get("FULL_TRACEBACK", "false") != "false"
         trace_without_locals = self.traceback.construct_message(show_locals=False).trace
         frames = trace_without_locals.stacks[0].frames
         loading_error_keyword = "importlib_load_entry_point"
         loading_error = any(frame.name == loading_error_keyword for frame in frames)
         # generating locals on error during initial loading leads
         # to infinite recursive traceback handling and abortion
-        return context.show_full_traceback and not (
-            loading_error or self.disable_show_locals
-        )
+        return show_full_traceback and not (loading_error or self.disable_show_locals)
 
     def visualize_in_console(self) -> None:
-        should_visualize_in_new_tab = (
-            context.has_window_server and not context.output_is_observed
-        )
-        if should_visualize_in_new_tab:
+        if should_visualize_in_new_tab():
             try:
                 self.visualize_in_new_tab()
             except FileNotFoundError:
@@ -59,7 +57,7 @@ class TraceVisualizer:
     @classmethod
     def visualize_in_active_tab(cls) -> None:
         cli.run("cat", Path.log.with_console_suffix, stdout=sys.stderr)
-        if context.is_running_in_ci:
+        if "GITHUB_ACTIONS" in os.environ:
             time.sleep(2)  # pragma: nocover
 
     def save(self, path: Path, *, show_locals: bool | None = None) -> None:
@@ -71,3 +69,25 @@ class TraceVisualizer:
             message = self.traceback.construct_message(show_locals=show_locals)
             console.print(message)
             console.save_text(str(path))
+
+
+def should_visualize_in_new_tab() -> bool:
+    display = os.environ.get("DISPLAY")
+    has_window_server = display is not None and "localhost" not in display
+    streams = (sys.stderr, sys.stdout)
+    output_is_observed = any(stream_is_observed(stream) for stream in streams)
+    return has_window_server and not output_is_observed
+
+
+def stream_is_observed(stream: TextIO) -> bool:
+    try:
+        fd = stream.fileno()
+        mode = os.fstat(fd).st_mode
+    except (OSError, ValueError):
+        return False
+    return (
+        os.isatty(fd)
+        or stat.S_ISFIFO(mode)
+        or stat.S_ISREG(mode)
+        or stat.S_ISSOCK(mode)
+    )
