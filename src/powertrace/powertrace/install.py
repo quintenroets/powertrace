@@ -2,13 +2,13 @@ import sys
 import threading
 from types import TracebackType
 
-from . import visualize
+from .powertrace import PowerTrace
 from .traceback import Traceback
 
 
 def threading_excepthook(info: threading.ExceptHookArgs) -> None:
     traceback_info = Traceback.from_info(info)
-    visualize.visualize_traceback(traceback_info, repeat=False)
+    PowerTrace(traceback_info, repeat=False).visualize_traceback()
 
 
 def excepthook(
@@ -17,7 +17,7 @@ def excepthook(
     traceback: TracebackType | None,
 ) -> None:
     traceback_info = Traceback.from_tuple(type_, value, traceback)
-    visualize.visualize_traceback(traceback_info, repeat=False)
+    PowerTrace(traceback_info, repeat=False).visualize_traceback()
 
 
 def install_traceback_hooks() -> None:

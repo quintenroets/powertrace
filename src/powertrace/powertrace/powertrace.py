@@ -1,3 +1,4 @@
+import os
 import sys
 import traceback
 from dataclasses import dataclass
@@ -12,6 +13,8 @@ from .visualizer import TraceVisualizer
 @dataclass
 class PowerTrace:
     traceback: Traceback
+    exit_after: bool = True
+    repeat: bool = True
     skipped_exception_types: tuple[type[BaseException] | None, ...] = (
         KeyboardInterrupt,
         SystemExit,
@@ -37,12 +40,15 @@ class PowerTrace:
             sys.__excepthook__(self.traceback.type_, value, self.traceback.traceback)
 
     def visualize_traceback_atomic(self) -> None:
-        if not context.traceback_handled or context.repeat:
+        is_main_thread = context.is_running_in_main_thread
+        if not context.traceback_handled or (self.repeat and is_main_thread):
             context.set_traceback_handled()
             self._visualize_traceback_atomic()
+            if self.exit_after and not is_main_thread:  # pragma: nocover
+                os._exit(1)
 
     def _visualize_traceback_atomic(self) -> None:
-        visualizer = TraceVisualizer(traceback=self.traceback)
+        visualizer = TraceVisualizer(self.traceback)
         try:
             visualizer.visualize_traceback_atomic()
         except Exception:  # noqa: BLE001

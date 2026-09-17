@@ -17,9 +17,10 @@ def visualize_traceback(*, exit_after: bool = True, repeat: bool = True) -> None
     """
     Visualize the current traceback.
     """
-    from powertrace.powertrace.visualize import visualize_traceback  # noqa: PLC0415
+    from powertrace.powertrace.powertrace import PowerTrace  # noqa: PLC0415
+    from powertrace.powertrace.traceback import Traceback  # noqa: PLC0415
 
-    visualize_traceback(exit_after=exit_after, repeat=repeat)
+    PowerTrace(Traceback(), exit_after=exit_after, repeat=repeat).visualize_traceback()
 
 
 def install_powertrace_hooks() -> None:

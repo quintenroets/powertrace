@@ -34,7 +34,7 @@ def test_install_hooks() -> None:
     powertrace.install_traceback_hooks()
 
 
-@patch("powertrace.powertrace.visualize.visualize_traceback")
+@patch.object(PowerTrace, "visualize_traceback")
 def test_except_hook(mocked_visualize: MagicMock) -> None:
     powertrace.install_traceback_hooks()
     sys.excepthook(ValueError, ValueError(), None)
@@ -48,7 +48,7 @@ def test_interrupt_except_hook(mocked_install: MagicMock) -> None:
     mocked_install.assert_not_called()
 
 
-@patch("powertrace.powertrace.visualize.visualize_traceback")
+@patch.object(PowerTrace, "visualize_traceback")
 def test_threading_except_hook(mocked_visualize: MagicMock) -> None:
     powertrace.install_traceback_hooks()
     args = threading.ExceptHookArgs((ValueError, ValueError(), None, None))
@@ -92,13 +92,14 @@ def test_atomic_exception_recovery(
 
 @patch("cli.run_in_new_tab")
 @new_tab_context
-def test_only_visualized_once(mocked_run: MagicMock) -> None:
+def test_repeat(mocked_run: MagicMock) -> None:
     try:
         raise ValueError  # noqa: TRY301
     except ValueError:
         powertrace.visualize_traceback()
+        powertrace.visualize_traceback()
         powertrace.visualize_traceback(repeat=False)
-    mocked_run.assert_called_once()
+    assert mocked_run.call_count == 2  # noqa: PLR2004
 
 
 @patch("cli.run")
