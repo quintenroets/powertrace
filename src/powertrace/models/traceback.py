@@ -10,7 +10,7 @@ if TYPE_CHECKING:  # pragma: nocover
 T = TypeVar("T", bound="Traceback")
 
 
-@dataclass(unsafe_hash=True)
+@dataclass
 class Traceback:
     type_: type[BaseException] | None = None
     value: BaseException | None = None

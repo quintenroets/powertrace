@@ -4,6 +4,7 @@ import stat
 import sys
 import time
 from dataclasses import dataclass
+from traceback import walk_tb
 from typing import TextIO
 
 import cli
@@ -31,10 +32,8 @@ class TraceVisualizer:
     @property
     def should_show_locals(self) -> bool:
         show_full_traceback = os.environ.get("FULL_TRACEBACK", "false") != "false"
-        trace_without_locals = self.traceback.construct_message(show_locals=False).trace
-        frames = trace_without_locals.stacks[0].frames
-        loading_error_keyword = "importlib_load_entry_point"
-        loading_error = any(frame.name == loading_error_keyword for frame in frames)
+        names = (frame.f_code.co_name for frame, _ in walk_tb(self.traceback.traceback))
+        loading_error = "importlib_load_entry_point" in names
         # generating locals on error during initial loading leads
         # to infinite recursive traceback handling and abortion
         return show_full_traceback and not (loading_error or self.disable_show_locals)
