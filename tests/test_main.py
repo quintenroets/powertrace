@@ -1,6 +1,8 @@
 import os
 import sys
 import threading
+from collections.abc import Iterator
+from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -8,26 +10,29 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 import powertrace
-from powertrace.context import Context, context
+from powertrace.powertrace import visualizer
 from powertrace.powertrace.install import excepthook
 from powertrace.powertrace.powertrace import PowerTrace
 from powertrace.powertrace.visualizer import TraceVisualizer
 
-new_tab_context = patch.multiple(
-    Context,
-    has_window_server=True,
-    stream_is_observed=MagicMock(return_value=False),
-)
-no_new_tab_context = patch.multiple(
-    Context,
-    has_window_server=True,
-    stream_is_observed=MagicMock(return_value=True),
-)
+
+@contextmanager
+def window_server(*, output_is_observed: bool) -> Iterator[None]:
+    with (
+        patch.dict(os.environ, {"DISPLAY": ":0"}),
+        patch.object(visualizer, "stream_is_observed", return_value=output_is_observed),
+    ):
+        yield
 
 
 @pytest.fixture(autouse=True)
 def reset_traceback_handled() -> None:
-    context._traceback_handled = False  # noqa: SLF001
+    PowerTrace.traceback_handled = False
+
+
+@pytest.fixture(autouse=True)
+def outside_ci(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
 
 
 def test_install_hooks() -> None:
@@ -64,15 +69,15 @@ def verify_powertrace(exception_type: type[Exception] = RuntimeError) -> None:
 
 
 @patch("cli.run_in_new_tab")
-@new_tab_context
-@patch.object(Context, "show_full_traceback", new=True)
+@window_server(output_is_observed=False)
+@patch.dict(os.environ, {"FULL_TRACEBACK": "true"})
 def test_powertrace(mocked_run: MagicMock) -> None:
     verify_powertrace()
     mocked_run.assert_called_once()
 
 
 @patch.object(PowerTrace, "_visualize_traceback", side_effect=RuntimeError)
-@new_tab_context
+@window_server(output_is_observed=False)
 def test_exception_recovery(mocked_visualize: MagicMock) -> None:
     verify_powertrace()
     mocked_visualize.assert_called_once()
@@ -80,7 +85,7 @@ def test_exception_recovery(mocked_visualize: MagicMock) -> None:
 
 @patch("cli.run_in_new_tab")
 @patch.object(TraceVisualizer, "visualize_traceback_atomic", side_effect=RuntimeError)
-@new_tab_context
+@window_server(output_is_observed=False)
 def test_atomic_exception_recovery(
     mocked_visualize: MagicMock,
     mocked_run: MagicMock,
@@ -91,7 +96,7 @@ def test_atomic_exception_recovery(
 
 
 @patch("cli.run_in_new_tab")
-@new_tab_context
+@window_server(output_is_observed=False)
 def test_repeat(mocked_run: MagicMock) -> None:
     try:
         raise ValueError  # noqa: TRY301
@@ -104,7 +109,7 @@ def test_repeat(mocked_run: MagicMock) -> None:
 
 @patch("cli.run")
 @patch("cli.run_in_new_tab", side_effect=FileNotFoundError)
-@new_tab_context
+@window_server(output_is_observed=False)
 def test_fallback_to_visualize_in_active_tab(
     mocked_run_in_new_tab: MagicMock,
     mocked_run: MagicMock,
@@ -116,8 +121,9 @@ def test_fallback_to_visualize_in_active_tab(
 
 @patch("cli.run")
 @patch("pdb.post_mortem")
-@patch.object(Context, "should_debug", new=True)
-@no_new_tab_context
+@patch("sys.stdin.isatty", new=MagicMock(return_value=True))
+@patch.dict(os.environ, {"POWERTRACE_DEBUG": "1"})
+@window_server(output_is_observed=True)
 def test_visualize_in_active_tab(
     mocked_post_mortem: MagicMock,
     mocked_run: MagicMock,
@@ -128,31 +134,25 @@ def test_visualize_in_active_tab(
     mocked_post_mortem.assert_called_once()
 
 
-@no_new_tab_context
 def test_recursion_error_handling() -> None:
     verify_powertrace(exception_type=RecursionError)
 
 
-@no_new_tab_context
+@window_server(output_is_observed=True)
 @patch.object(TraceVisualizer, "disable_show_locals", new=True)
 def test_show_locals() -> None:
     verify_powertrace()
 
 
-@patch.dict(os.environ, {"DISPLAY": ":0"}, clear=True)
-def test_has_window_server() -> None:
-    assert context.has_window_server
-
-
 def test_stream_to_file_is_observed(tmp_path: Path) -> None:
     with (tmp_path / "stream").open("w") as stream:
-        assert context.stream_is_observed(stream)
+        assert visualizer.stream_is_observed(stream)
 
 
 def test_stream_to_devnull_is_not_observed() -> None:
     with Path(os.devnull).open("w") as stream:
-        assert not context.stream_is_observed(stream)
+        assert not visualizer.stream_is_observed(stream)
 
 
 def test_stream_without_fileno_is_not_observed() -> None:
-    assert not context.stream_is_observed(StringIO())
+    assert not visualizer.stream_is_observed(StringIO())
