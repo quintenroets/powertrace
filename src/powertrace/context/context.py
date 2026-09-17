@@ -7,12 +7,10 @@ from typing import TextIO
 
 from package_utils.context import Context as Context_
 
-from .config import Config
 
-
-class Context(Context_[None, Config, None]):
+class Context(Context_[None, None, None]):
     def __init__(self) -> None:
-        super().__init__(Config=Config)
+        super().__init__()
         self._traceback_handled = False
 
     @property
@@ -22,10 +20,6 @@ class Context(Context_[None, Config, None]):
     @property
     def is_running_in_main_thread(self) -> bool:
         return threading.current_thread() is threading.main_thread()
-
-    @property
-    def repeat(self) -> bool:
-        return self.config.repeat and self.is_running_in_main_thread
 
     @cached_property
     def visualization_mutex(self) -> threading.Lock:

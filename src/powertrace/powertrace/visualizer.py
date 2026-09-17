@@ -1,4 +1,3 @@
-import os
 import pdb  # noqa: T100
 import sys
 import time
@@ -26,7 +25,6 @@ class TraceVisualizer:
         self.visualize_in_console()
         if context.should_debug:
             pdb.post_mortem(self.traceback.traceback)
-        self.exit()
 
     @property
     def should_show_locals(self) -> bool:
@@ -73,11 +71,3 @@ class TraceVisualizer:
             message = self.traceback.construct_message(show_locals=show_locals)
             console.print(message)
             console.save_text(str(path))
-
-    @classmethod
-    def exit(cls) -> None:
-        if (
-            context.config.exit_after and not context.is_running_in_main_thread
-        ):  # pragma: nocover
-            os._exit(1)  # force exit
-            sys.exit(1)  # stop execution after error in threads as well
