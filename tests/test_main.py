@@ -65,7 +65,7 @@ def verify_powertrace(exception_type: type[Exception] = RuntimeError) -> None:
     try:
         raise exception_type()  # noqa: TRY301
     except exception_type as exception:
-        excepthook(exception_type, exception_type(), exception.__traceback__)
+        excepthook(exception_type, exception, exception.__traceback__)
 
 
 @patch("cli.run_in_new_tab")
@@ -140,8 +140,12 @@ def test_visualize_in_active_tab(
     mocked_post_mortem.assert_called_once()
 
 
-def test_recursion_error_handling() -> None:
+@patch("sys.__excepthook__")
+def test_recursion_error_handling(mocked_excepthook: MagicMock) -> None:
     verify_powertrace(exception_type=RecursionError)
+    type_, value, traceback = mocked_excepthook.call_args.args
+    expected = (RecursionError, RecursionError, value.__traceback__)
+    assert (type_, type(value), traceback) == expected
 
 
 @window_server(output_is_observed=True)
