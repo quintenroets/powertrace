@@ -108,6 +108,12 @@ def test_repeat(mocked_run: MagicMock) -> None:
 
 
 @patch("cli.run")
+def test_without_current_exception(mocked_run: MagicMock) -> None:
+    powertrace.visualize_traceback()
+    mocked_run.assert_not_called()
+
+
+@patch("cli.run")
 @patch("cli.run_in_new_tab", side_effect=FileNotFoundError)
 @window_server(output_is_observed=False)
 def test_fallback_to_visualize_in_active_tab(
