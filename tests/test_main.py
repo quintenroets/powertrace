@@ -7,8 +7,7 @@ import pytest
 from rich.traceback import Traceback
 
 import powertrace
-from powertrace.powertrace.install import excepthook
-from powertrace.powertrace.powertrace import handled
+from powertrace.handler import excepthook, handled
 
 
 @pytest.fixture(autouse=True)
@@ -20,21 +19,21 @@ def test_install_hooks() -> None:
     powertrace.install_traceback_hooks()
 
 
-@patch("powertrace.powertrace.install.handle")
+@patch("powertrace.handler.handle")
 def test_except_hook(mocked_handle: MagicMock) -> None:
     powertrace.install_traceback_hooks()
     sys.excepthook(ValueError, ValueError(), None)
     mocked_handle.assert_called_once()
 
 
-@patch("powertrace.main.main.install_powertrace_hooks")
+@patch("powertrace.main.install_powertrace_hooks")
 def test_interrupt_except_hook(mocked_install: MagicMock) -> None:
     powertrace.install_traceback_hooks()
     sys.excepthook(KeyboardInterrupt, KeyboardInterrupt(), None)
     mocked_install.assert_not_called()
 
 
-@patch("powertrace.powertrace.install.handle")
+@patch("powertrace.handler.handle")
 def test_threading_except_hook(mocked_handle: MagicMock) -> None:
     powertrace.install_traceback_hooks()
     args = threading.ExceptHookArgs((ValueError, ValueError(), None, None))
@@ -66,7 +65,7 @@ def test_exception_recovery(
     assert "ValueError" in capsys.readouterr().err
 
 
-@patch("powertrace.powertrace.powertrace.print_rich_exception")
+@patch("powertrace.handler.print_rich_exception")
 def test_repeat(mocked_print_rich_exception: MagicMock) -> None:
     try:
         raise ValueError  # noqa: TRY301
@@ -94,7 +93,7 @@ class DerivedRecursionError(RecursionError):
     pass
 
 
-@patch("powertrace.powertrace.powertrace.print_exception")
+@patch("powertrace.handler.print_exception")
 def test_exception_subclass_handling(mocked_print_exception: MagicMock) -> None:
     verify_powertrace(exception_type=DerivedRecursionError)
     (exception,) = mocked_print_exception.call_args.args

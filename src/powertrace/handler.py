@@ -3,12 +3,32 @@ import pdb  # noqa: T100
 import sys
 import threading
 from traceback import print_exception, walk_tb
+from types import TracebackType
+from typing import cast
 
 from rich.console import Console
 from rich.traceback import Traceback
 
 mutex = threading.Lock()
 handled = threading.Event()
+
+
+def install_traceback_hooks() -> None:
+    sys.excepthook = excepthook
+    threading.excepthook = threading_excepthook
+
+
+def excepthook(
+    _type: type[BaseException],
+    value: BaseException,
+    _traceback: TracebackType | None,
+) -> None:
+    handle(value, repeat=False)
+
+
+def threading_excepthook(args: threading.ExceptHookArgs) -> None:
+    value = cast("BaseException", args.exc_value)
+    handle(value, repeat=False)
 
 
 def handle(
