@@ -17,12 +17,11 @@ def visualize_traceback(*, exit_after: bool = True, repeat: bool = True) -> None
     """
     Visualize the current traceback.
     """
-    from powertrace.powertrace.powertrace import PowerTrace  # noqa: PLC0415
+    from powertrace.powertrace.powertrace import handle  # noqa: PLC0415
 
     exception = sys.exception()
     if exception is not None:
-        powertrace = PowerTrace(exception, exit_after=exit_after, repeat=repeat)
-        powertrace.visualize_traceback()
+        handle(exception, exit_after=exit_after, repeat=repeat)
 
 
 def install_powertrace_hooks() -> None:

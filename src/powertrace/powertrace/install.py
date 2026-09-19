@@ -3,12 +3,12 @@ import threading
 from types import TracebackType
 from typing import cast
 
-from .powertrace import PowerTrace
+from .powertrace import handle
 
 
 def threading_excepthook(args: threading.ExceptHookArgs) -> None:
     value = cast("BaseException", args.exc_value)
-    PowerTrace(value, repeat=False).visualize_traceback()
+    handle(value, repeat=False)
 
 
 def excepthook(
@@ -16,7 +16,7 @@ def excepthook(
     value: BaseException,
     _traceback: TracebackType | None,
 ) -> None:
-    PowerTrace(value, repeat=False).visualize_traceback()
+    handle(value, repeat=False)
 
 
 def install_traceback_hooks() -> None:
