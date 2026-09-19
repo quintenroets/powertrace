@@ -91,11 +91,15 @@ def test_post_mortem(mocked_post_mortem: MagicMock) -> None:
     mocked_post_mortem.assert_called_once()
 
 
+class DerivedRecursionError(RecursionError):
+    pass
+
+
 @patch("sys.__excepthook__")
-def test_recursion_error_handling(mocked_excepthook: MagicMock) -> None:
-    verify_powertrace(exception_type=RecursionError)
+def test_exception_subclass_handling(mocked_excepthook: MagicMock) -> None:
+    verify_powertrace(exception_type=DerivedRecursionError)
     type_, value, traceback = mocked_excepthook.call_args.args
-    expected = (RecursionError, RecursionError, value.__traceback__)
+    expected = (DerivedRecursionError, DerivedRecursionError, value.__traceback__)
     assert (type_, type(value), traceback) == expected
 
 
