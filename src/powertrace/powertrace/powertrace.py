@@ -1,61 +1,61 @@
 import os
+import pdb  # noqa: T100
 import sys
 import threading
-import traceback
-from dataclasses import dataclass
-from typing import ClassVar
+from traceback import print_exception, walk_tb
 
-from .visualizer import TraceVisualizer
+from rich.console import Console
+from rich.traceback import Traceback
+
+mutex = threading.Lock()
+handled = threading.Event()
 
 
-@dataclass
-class PowerTrace:
-    exception: BaseException
-    exit_after: bool = True
-    repeat: bool = True
-    skipped_exception_types: tuple[type[BaseException], ...] = (
-        KeyboardInterrupt,
-        SystemExit,
-        RecursionError,
-        BrokenPipeError,
-    )
-    use_original_handler: tuple[type[BaseException], ...] = (RecursionError,)
-    visualization_mutex: ClassVar[threading.Lock] = threading.Lock()
-    traceback_handled: ClassVar[bool] = False
+def handle(
+    exception: BaseException,
+    *,
+    exit_after: bool = True,
+    repeat: bool = True,
+) -> None:
+    if isinstance(exception, RecursionError):
+        print_exception(exception)
+    elif not isinstance(exception, KeyboardInterrupt | SystemExit | BrokenPipeError):
+        in_main_thread = threading.current_thread() is threading.main_thread()
+        with mutex:
+            # only handle the first exception from crashing threads
+            if (repeat and in_main_thread) or not handled.is_set():
+                handled.set()
+                report(exception)
+                if exit_after and not in_main_thread:  # pragma: nocover
+                    os._exit(1)
 
-    def visualize_traceback(self) -> None:
-        try:
-            self._visualize_traceback()
-        except Exception:  # noqa: BLE001
-            # use builtin traceback visualization when custom visualization fails
-            traceback.print_exc()
 
-    def _visualize_traceback(self) -> None:
-        if not isinstance(self.exception, self.skipped_exception_types):
-            with PowerTrace.visualization_mutex:
-                # only visualize the first traceback for crashing threads
-                self.visualize_traceback_atomic()
-        elif isinstance(self.exception, self.use_original_handler):
-            info = type(self.exception), self.exception, self.exception.__traceback__
-            sys.__excepthook__(*info)
+def report(exception: BaseException) -> None:
+    try:
+        print_rich_exception(exception)
+    except Exception as error:  # noqa: BLE001
+        print_exception(error)
+        print_exception(exception)
+    if "POWERTRACE_DEBUG" in os.environ and sys.stdin.isatty():
+        pdb.post_mortem(exception.__traceback__)
 
-    def visualize_traceback_atomic(self) -> None:
-        is_main_thread = threading.current_thread() is threading.main_thread()
-        if not PowerTrace.traceback_handled or (self.repeat and is_main_thread):
-            PowerTrace.traceback_handled = True
-            self._visualize_traceback_atomic()
-            if self.exit_after and not is_main_thread:  # pragma: nocover
-                os._exit(1)
 
-    def _visualize_traceback_atomic(self) -> None:
-        visualizer = TraceVisualizer(self.exception)
-        try:
-            visualizer.visualize_traceback_atomic()
-        except Exception:  # noqa: BLE001
-            visualizer.disable_show_locals = True
-            try:
-                visualizer.visualize_traceback_atomic()
-            except Exception as exception:  # noqa: BLE001
-                # visualize failure to construct message
-                visualizer.exception = exception
-                visualizer.visualize_traceback_atomic()
+def print_rich_exception(exception: BaseException) -> None:
+    exc_info = type(exception), exception, exception.__traceback__
+    show_locals = should_show_locals(exception)
+    try:
+        traceback = Traceback.from_exception(*exc_info, show_locals=show_locals)
+    except Exception:  # noqa: BLE001
+        traceback = Traceback.from_exception(*exc_info, show_locals=False)
+    console = Console(force_terminal=True)
+    with console.capture() as capture:
+        console.print(traceback)
+    sys.stderr.write(capture.get())
+
+
+def should_show_locals(exception: BaseException) -> bool:
+    full_traceback = os.environ.get("FULL_TRACEBACK", "false") != "false"
+    frames = walk_tb(exception.__traceback__)
+    names = (frame.f_code.co_name for frame, _ in frames)
+    # rendering locals while loading the entry point recurses infinitely and aborts
+    return full_traceback and "importlib_load_entry_point" not in names

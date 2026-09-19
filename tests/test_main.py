@@ -4,27 +4,27 @@ import threading
 from unittest.mock import MagicMock, patch
 
 import pytest
+from rich.traceback import Traceback
 
 import powertrace
 from powertrace.powertrace.install import excepthook
-from powertrace.powertrace.powertrace import PowerTrace
-from powertrace.powertrace.visualizer import TraceVisualizer
+from powertrace.powertrace.powertrace import handled
 
 
 @pytest.fixture(autouse=True)
-def reset_traceback_handled() -> None:
-    PowerTrace.traceback_handled = False
+def reset_handled() -> None:
+    handled.clear()
 
 
 def test_install_hooks() -> None:
     powertrace.install_traceback_hooks()
 
 
-@patch.object(PowerTrace, "visualize_traceback")
-def test_except_hook(mocked_visualize: MagicMock) -> None:
+@patch("powertrace.powertrace.install.handle")
+def test_except_hook(mocked_handle: MagicMock) -> None:
     powertrace.install_traceback_hooks()
     sys.excepthook(ValueError, ValueError(), None)
-    mocked_visualize.assert_called_once()
+    mocked_handle.assert_called_once()
 
 
 @patch("powertrace.main.main.install_powertrace_hooks")
@@ -34,19 +34,20 @@ def test_interrupt_except_hook(mocked_install: MagicMock) -> None:
     mocked_install.assert_not_called()
 
 
-@patch.object(PowerTrace, "visualize_traceback")
-def test_threading_except_hook(mocked_visualize: MagicMock) -> None:
+@patch("powertrace.powertrace.install.handle")
+def test_threading_except_hook(mocked_handle: MagicMock) -> None:
     powertrace.install_traceback_hooks()
     args = threading.ExceptHookArgs((ValueError, ValueError(), None, None))
     threading.excepthook(args)
-    mocked_visualize.assert_called_once()
+    mocked_handle.assert_called_once()
 
 
 def verify_powertrace(exception_type: type[Exception] = RuntimeError) -> None:
     try:
         raise exception_type()  # noqa: TRY301
-    except exception_type as exception:
-        excepthook(exception_type, exception, exception.__traceback__)
+    except exception_type as error:
+        exception = error
+    excepthook(exception_type, exception, exception.__traceback__)
 
 
 @patch.dict(os.environ, {"FULL_TRACEBACK": "true"})
@@ -55,27 +56,25 @@ def test_powertrace(capsys: pytest.CaptureFixture[str]) -> None:
     assert capsys.readouterr().err
 
 
-@patch.object(PowerTrace, "_visualize_traceback", side_effect=RuntimeError)
-def test_exception_recovery(mocked_visualize: MagicMock) -> None:
-    verify_powertrace()
-    mocked_visualize.assert_called_once()
+@patch.object(Traceback, "from_exception", side_effect=RuntimeError)
+def test_exception_recovery(
+    mocked_from_exception: MagicMock,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    verify_powertrace(ValueError)
+    assert mocked_from_exception.call_count == 2  # noqa: PLR2004
+    assert "ValueError" in capsys.readouterr().err
 
 
-@patch.object(TraceVisualizer, "visualize_traceback_atomic", side_effect=RuntimeError)
-def test_atomic_exception_recovery(mocked_visualize: MagicMock) -> None:
-    verify_powertrace()
-    mocked_visualize.assert_called()
-
-
-@patch.object(TraceVisualizer, "visualize_traceback_atomic")
-def test_repeat(mocked_visualize: MagicMock) -> None:
+@patch("powertrace.powertrace.powertrace.print_rich_exception")
+def test_repeat(mocked_print_rich_exception: MagicMock) -> None:
     try:
         raise ValueError  # noqa: TRY301
     except ValueError:
         powertrace.visualize_traceback()
         powertrace.visualize_traceback()
         powertrace.visualize_traceback(repeat=False)
-    assert mocked_visualize.call_count == 2  # noqa: PLR2004
+    assert mocked_print_rich_exception.call_count == 2  # noqa: PLR2004
 
 
 def test_without_current_exception(capsys: pytest.CaptureFixture[str]) -> None:
@@ -95,14 +94,8 @@ class DerivedRecursionError(RecursionError):
     pass
 
 
-@patch("sys.__excepthook__")
-def test_exception_subclass_handling(mocked_excepthook: MagicMock) -> None:
+@patch("powertrace.powertrace.powertrace.print_exception")
+def test_exception_subclass_handling(mocked_print_exception: MagicMock) -> None:
     verify_powertrace(exception_type=DerivedRecursionError)
-    type_, value, traceback = mocked_excepthook.call_args.args
-    expected = (DerivedRecursionError, DerivedRecursionError, value.__traceback__)
-    assert (type_, type(value), traceback) == expected
-
-
-@patch.object(TraceVisualizer, "disable_show_locals", new=True)
-def test_show_locals() -> None:
-    verify_powertrace()
+    (exception,) = mocked_print_exception.call_args.args
+    assert isinstance(exception, DerivedRecursionError)
