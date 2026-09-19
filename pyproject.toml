@@ -8,7 +8,6 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "rich >=13.7.1, <16",
-    "superpathlib >=2.0.13, <3"
 ]
 
 [project.optional-dependencies]
