@@ -31,13 +31,13 @@ class PowerTrace:
             traceback.print_exc()
 
     def _visualize_traceback(self) -> None:
-        type_ = type(self.exception)
-        if type_ not in self.skipped_exception_types:
+        if not isinstance(self.exception, self.skipped_exception_types):
             with PowerTrace.visualization_mutex:
                 # only visualize the first traceback for crashing threads
                 self.visualize_traceback_atomic()
-        elif type_ in self.use_original_handler:
-            sys.__excepthook__(type_, self.exception, self.exception.__traceback__)
+        elif isinstance(self.exception, self.use_original_handler):
+            info = type(self.exception), self.exception, self.exception.__traceback__
+            sys.__excepthook__(*info)
 
     def visualize_traceback_atomic(self) -> None:
         is_main_thread = threading.current_thread() is threading.main_thread()
