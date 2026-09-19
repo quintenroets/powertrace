@@ -3,18 +3,17 @@ import sys
 import threading
 import traceback
 from dataclasses import dataclass
-from typing import ClassVar, cast
+from typing import ClassVar
 
-from .traceback import Traceback
 from .visualizer import TraceVisualizer
 
 
 @dataclass
 class PowerTrace:
-    traceback: Traceback
+    exception: BaseException
     exit_after: bool = True
     repeat: bool = True
-    skipped_exception_types: tuple[type[BaseException] | None, ...] = (
+    skipped_exception_types: tuple[type[BaseException], ...] = (
         KeyboardInterrupt,
         SystemExit,
         RecursionError,
@@ -32,13 +31,13 @@ class PowerTrace:
             traceback.print_exc()
 
     def _visualize_traceback(self) -> None:
-        if self.traceback.type_ not in self.skipped_exception_types:
+        type_ = type(self.exception)
+        if type_ not in self.skipped_exception_types:
             with PowerTrace.visualization_mutex:
                 # only visualize the first traceback for crashing threads
                 self.visualize_traceback_atomic()
-        elif self.traceback.type_ in self.use_original_handler:
-            value = cast("BaseException", self.traceback.value)
-            sys.__excepthook__(self.traceback.type_, value, self.traceback.traceback)
+        elif type_ in self.use_original_handler:
+            sys.__excepthook__(type_, self.exception, self.exception.__traceback__)
 
     def visualize_traceback_atomic(self) -> None:
         is_main_thread = threading.current_thread() is threading.main_thread()
@@ -49,15 +48,14 @@ class PowerTrace:
                 os._exit(1)
 
     def _visualize_traceback_atomic(self) -> None:
-        visualizer = TraceVisualizer(self.traceback)
+        visualizer = TraceVisualizer(self.exception)
         try:
             visualizer.visualize_traceback_atomic()
         except Exception:  # noqa: BLE001
             visualizer.disable_show_locals = True
             try:
-                # try without locals when message construction fails
                 visualizer.visualize_traceback_atomic()
-            except Exception:  # noqa: BLE001
+            except Exception as exception:  # noqa: BLE001
                 # visualize failure to construct message
-                visualizer.traceback = Traceback()
+                visualizer.exception = exception
                 visualizer.visualize_traceback_atomic()
