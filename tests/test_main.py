@@ -1,3 +1,4 @@
+import subprocess
 import sys
 import threading
 from unittest.mock import MagicMock, patch
@@ -103,3 +104,30 @@ def test_exception_subclass_handling(mocked_print_exception: MagicMock) -> None:
     handle(DerivedRecursionError())
     (exception,) = mocked_print_exception.call_args.args
     assert isinstance(exception, DerivedRecursionError)
+
+
+message = "error message"
+process_error = subprocess.CalledProcessError(1, "command", stderr=message.encode())
+
+
+def test_subprocess_error(capsys: pytest.CaptureFixture[str]) -> None:
+    handle(process_error)
+    assert message in capsys.readouterr().err
+
+
+def test_subprocess_error_context(capsys: pytest.CaptureFixture[str]) -> None:
+    try:
+        try:
+            raise process_error
+        except subprocess.CalledProcessError:
+            raise RuntimeError  # noqa: B904
+    except RuntimeError as error:
+        handle(error)
+    assert message in capsys.readouterr().err
+
+
+def test_subprocess_error_cause(capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(RuntimeError) as info:
+        raise RuntimeError from process_error
+    handle(info.value)
+    assert message in capsys.readouterr().err
