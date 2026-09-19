@@ -1,12 +1,17 @@
 import os
 import pdb  # noqa: T100
+import subprocess
 import sys
 import threading
+from collections.abc import Iterator
 from traceback import print_exception, walk_tb
 from types import TracebackType
 from typing import cast
 
-from rich.console import Console
+from rich.console import Console, Group
+from rich.constrain import Constrain
+from rich.panel import Panel
+from rich.text import Text
 from rich.traceback import Traceback
 
 mutex = threading.Lock()
@@ -67,9 +72,10 @@ def print_rich_exception(exception: BaseException) -> None:
         traceback = Traceback.from_exception(*exc_info, show_locals=show_locals)
     except Exception:  # noqa: BLE001
         traceback = Traceback.from_exception(*exc_info, show_locals=False)
+    output = Group(traceback, *generate_output_panels(exception))
     console = Console(force_terminal=True)
     with console.capture() as capture:
-        console.print(traceback)
+        console.print(Constrain(output, traceback.width))
     sys.stderr.write(capture.get())
 
 
@@ -79,3 +85,21 @@ def should_show_locals(exception: BaseException) -> bool:
     names = (frame.f_code.co_name for frame, _ in frames)
     # rendering locals while loading the entry point recurses infinitely and aborts
     return full_traceback and "importlib_load_entry_point" not in names
+
+
+def generate_output_panels(exception: BaseException) -> Iterator[Panel]:
+    for error in walk_chain(exception):
+        if isinstance(error, subprocess.CalledProcessError):
+            output = error.stderr or error.output or ""
+            if isinstance(output, bytes):
+                output = output.decode(errors="backslashreplace")
+            content = Text.from_ansi(output.strip())
+            if content.plain.strip():
+                yield Panel(content, title="output", border_style="traceback.border")
+
+
+def walk_chain(exception: BaseException | None) -> Iterator[BaseException]:
+    while exception is not None:
+        yield exception
+        context = None if exception.__suppress_context__ else exception.__context__
+        exception = exception.__cause__ or context
