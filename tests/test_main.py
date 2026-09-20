@@ -27,10 +27,10 @@ def test_except_hook(mocked_handle: MagicMock) -> None:
 
 
 @pytest.mark.usefixtures("installed_hooks")
-@patch("powertrace.main.install_powertrace_hooks")
-def test_interrupt_except_hook(mocked_install: MagicMock) -> None:
+def test_interrupt_except_hook(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delitem(sys.modules, "powertrace.handler")
     sys.excepthook(KeyboardInterrupt, KeyboardInterrupt(), None)
-    mocked_install.assert_not_called()
+    assert "powertrace.handler" not in sys.modules
 
 
 @pytest.mark.usefixtures("installed_hooks")

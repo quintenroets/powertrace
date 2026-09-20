@@ -3,9 +3,9 @@ Can be included in sitecustomize files.
 
 In that case, the code below is executed before every script. As a
 result, its runtime performance is critical. The hooks and functions
-below are never called for most scripts. We only install them when they
-are needed. Lazy imports & installs limit the total overhead of this
-file to the microseconds scale.
+below are never called for most scripts. We only import the handler when
+it is needed. Lazy imports limit the total overhead of this file to the
+microseconds scale.
 """
 
 import _thread
@@ -29,28 +29,24 @@ def visualize_traceback(*, exit_after: bool = True) -> None:
         handler.handle(exception, exit_after=exit_after)
 
 
-def install_powertrace_hooks() -> None:
-    from . import handler  # noqa: PLC0415
-
-    handler.install_traceback_hooks()
-
-
 def excepthook(
     type_: type[BaseException],
     value: BaseException,
-    traceback: "TracebackType | None",
+    _traceback: "TracebackType | None",
 ) -> None:
     # importing libraries clears interpreter's interrupt exit status
     if not issubclass(type_, KeyboardInterrupt):
-        install_powertrace_hooks()
-        sys.excepthook(type_, value, traceback)
+        from . import handler  # noqa: PLC0415
+
+        handler.handle(value)
 
 
 def threading_excepthook(args: "threading.ExceptHookArgs") -> None:
-    import threading  # noqa: PLC0415
+    from typing import cast  # noqa: PLC0415
 
-    install_powertrace_hooks()
-    threading.excepthook(args)
+    from . import handler  # noqa: PLC0415
+
+    handler.handle(cast("BaseException", args.exc_value))
 
 
 def install_traceback_hooks() -> None:
