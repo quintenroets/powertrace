@@ -10,7 +10,12 @@ file to the microseconds scale.
 
 import _thread
 import sys
-from typing import Any
+
+TYPE_CHECKING = False
+
+if TYPE_CHECKING:
+    import threading
+    from types import TracebackType
 
 
 def visualize_traceback(*, exit_after: bool = True) -> None:
@@ -30,18 +35,22 @@ def install_powertrace_hooks() -> None:
     handler.install_traceback_hooks()
 
 
-def excepthook(type_: type[BaseException], *args: Any) -> None:
+def excepthook(
+    type_: type[BaseException],
+    value: BaseException,
+    traceback: "TracebackType | None",
+) -> None:
     # importing libraries clears interpreter's interrupt exit status
     if not issubclass(type_, KeyboardInterrupt):
         install_powertrace_hooks()
-        sys.excepthook(type_, *args)
+        sys.excepthook(type_, value, traceback)
 
 
-def threading_excepthook(*args: Any) -> None:
+def threading_excepthook(args: "threading.ExceptHookArgs") -> None:
     import threading  # noqa: PLC0415
 
     install_powertrace_hooks()
-    threading.excepthook(*args)
+    threading.excepthook(args)
 
 
 def install_traceback_hooks() -> None:
