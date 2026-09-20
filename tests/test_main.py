@@ -1,3 +1,5 @@
+import _thread
+import importlib
 import subprocess
 import sys
 import threading
@@ -37,6 +39,18 @@ def test_threading_except_hook(mocked_handle: MagicMock) -> None:
     args = threading.ExceptHookArgs((ValueError, ValueError(), None, None))
     threading.excepthook(args)
     mocked_handle.assert_called_once()
+
+
+def test_hooks_installed_without_threading_import(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(sys, "excepthook", sys.excepthook)
+    monkeypatch.setattr(_thread, "_excepthook", _thread._excepthook)  # noqa: SLF001
+    monkeypatch.delitem(sys.modules, "threading")
+    powertrace.install_traceback_hooks()
+    assert "threading" not in sys.modules
+    reimported = importlib.import_module("threading")
+    assert reimported.excepthook is powertrace.main.threading_excepthook
 
 
 @pytest.mark.parametrize("full_traceback", [True, False])

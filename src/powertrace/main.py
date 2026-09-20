@@ -8,8 +8,8 @@ are needed. Lazy imports & installs limit the total overhead of this
 file to the microseconds scale.
 """
 
+import _thread
 import sys
-import threading
 from typing import Any
 
 
@@ -38,10 +38,18 @@ def excepthook(type_: type[BaseException], *args: Any) -> None:
 
 
 def threading_excepthook(*args: Any) -> None:
+    import threading  # noqa: PLC0415
+
     install_powertrace_hooks()
     threading.excepthook(*args)
 
 
 def install_traceback_hooks() -> None:
     sys.excepthook = excepthook
-    threading.excepthook = threading_excepthook
+    if "threading" in sys.modules:
+        import threading  # noqa: PLC0415
+
+        threading.excepthook = threading_excepthook
+    else:
+        # threading copies _thread._excepthook into its excepthook at import time
+        _thread._excepthook = threading_excepthook  # noqa: SLF001
