@@ -5,8 +5,6 @@ import sys
 import threading
 from collections.abc import Iterator
 from traceback import print_exception, walk_tb
-from types import TracebackType
-from typing import cast
 
 from rich.console import Console, Group
 from rich.constrain import Constrain
@@ -15,24 +13,6 @@ from rich.text import Text
 from rich.traceback import Traceback
 
 mutex = threading.Lock()
-
-
-def install_traceback_hooks() -> None:
-    sys.excepthook = excepthook
-    threading.excepthook = threading_excepthook
-
-
-def excepthook(
-    _type: type[BaseException],
-    value: BaseException,
-    _traceback: TracebackType | None,
-) -> None:
-    handle(value)
-
-
-def threading_excepthook(args: threading.ExceptHookArgs) -> None:
-    value = cast("BaseException", args.exc_value)
-    handle(value)
 
 
 def handle(exception: BaseException, *, exit_after: bool = True) -> None:
