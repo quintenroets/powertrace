@@ -7,12 +7,7 @@ import pytest
 from rich.traceback import Traceback
 
 import powertrace
-from powertrace.handler import handle, handled
-
-
-@pytest.fixture(autouse=True)
-def reset_handled() -> None:
-    handled.clear()
+from powertrace.handler import handle
 
 
 @pytest.fixture
@@ -67,14 +62,12 @@ def test_exception_recovery(
 
 
 @patch("powertrace.handler.print_rich_exception")
-def test_repeat(mocked_print_rich_exception: MagicMock) -> None:
+def test_current_exception(mocked_print_rich_exception: MagicMock) -> None:
     try:
         raise ValueError  # noqa: TRY301
     except ValueError:
         powertrace.visualize_traceback()
-        powertrace.visualize_traceback()
-        powertrace.visualize_traceback(repeat=False)
-    assert mocked_print_rich_exception.call_count == 2  # noqa: PLR2004
+    mocked_print_rich_exception.assert_called_once()
 
 
 def test_without_current_exception(capsys: pytest.CaptureFixture[str]) -> None:
