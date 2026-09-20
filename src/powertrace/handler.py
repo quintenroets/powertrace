@@ -15,7 +15,6 @@ from rich.text import Text
 from rich.traceback import Traceback
 
 mutex = threading.Lock()
-handled = threading.Event()
 
 
 def install_traceback_hooks() -> None:
@@ -28,31 +27,22 @@ def excepthook(
     value: BaseException,
     _traceback: TracebackType | None,
 ) -> None:
-    handle(value, repeat=False)
+    handle(value)
 
 
 def threading_excepthook(args: threading.ExceptHookArgs) -> None:
     value = cast("BaseException", args.exc_value)
-    handle(value, repeat=False)
+    handle(value)
 
 
-def handle(
-    exception: BaseException,
-    *,
-    exit_after: bool = True,
-    repeat: bool = True,
-) -> None:
+def handle(exception: BaseException, *, exit_after: bool = True) -> None:
     if isinstance(exception, RecursionError):
         print_exception(exception)
     elif not isinstance(exception, KeyboardInterrupt | SystemExit | BrokenPipeError):
-        in_main_thread = threading.current_thread() is threading.main_thread()
         with mutex:
-            # only handle the first exception from crashing threads
-            if (repeat and in_main_thread) or not handled.is_set():
-                handled.set()
-                report(exception)
-                if exit_after and not in_main_thread:  # pragma: nocover
-                    os._exit(1)
+            report(exception)
+            if exit_after and threading.current_thread() is not threading.main_thread():
+                os._exit(1)  # pragma: nocover
 
 
 def report(exception: BaseException) -> None:

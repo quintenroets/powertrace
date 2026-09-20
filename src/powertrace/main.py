@@ -13,7 +13,7 @@ import threading
 from typing import Any
 
 
-def visualize_traceback(*, exit_after: bool = True, repeat: bool = True) -> None:
+def visualize_traceback(*, exit_after: bool = True) -> None:
     """
     Visualize the current traceback.
     """
@@ -21,7 +21,7 @@ def visualize_traceback(*, exit_after: bool = True, repeat: bool = True) -> None
 
     exception = sys.exception()
     if exception is not None:
-        handler.handle(exception, exit_after=exit_after, repeat=repeat)
+        handler.handle(exception, exit_after=exit_after)
 
 
 def install_powertrace_hooks() -> None:
