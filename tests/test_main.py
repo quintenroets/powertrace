@@ -122,19 +122,12 @@ def test_subprocess_error(capsys: pytest.CaptureFixture[str]) -> None:
     assert message in capsys.readouterr().err
 
 
-def test_subprocess_error_context(capsys: pytest.CaptureFixture[str]) -> None:
+def test_subprocess_error_chain(capsys: pytest.CaptureFixture[str]) -> None:
     try:
         try:
-            raise process_error
-        except subprocess.CalledProcessError:
-            raise RuntimeError  # noqa: B904
-    except RuntimeError as error:
+            raise RuntimeError from process_error  # noqa: TRY301
+        except RuntimeError:
+            raise ValueError  # noqa: B904
+    except ValueError as error:
         handle(error)
-    assert message in capsys.readouterr().err
-
-
-def test_subprocess_error_cause(capsys: pytest.CaptureFixture[str]) -> None:
-    with pytest.raises(RuntimeError) as info:
-        raise RuntimeError from process_error
-    handle(info.value)
     assert message in capsys.readouterr().err
