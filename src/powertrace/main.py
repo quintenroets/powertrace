@@ -18,15 +18,23 @@ if TYPE_CHECKING:
     from types import TracebackType
 
 
-def visualize_traceback() -> None:
-    """
-    Visualize the current traceback.
-    """
+def show_exception() -> None:
     exception = sys.exception()
     if exception is not None:
         from . import reporting  # noqa: PLC0415
 
         reporting.display(exception)
+
+
+def install() -> None:
+    sys.excepthook = excepthook
+    if "threading" in sys.modules:
+        import threading  # noqa: PLC0415
+
+        threading.excepthook = threading_excepthook
+    else:
+        # threading copies _thread._excepthook into its excepthook at import time
+        _thread._excepthook = threading_excepthook  # noqa: SLF001
 
 
 def excepthook(
@@ -48,14 +56,3 @@ def threading_excepthook(args: "threading.ExceptHookArgs") -> None:
         from . import reporting  # noqa: PLC0415
 
         reporting.report_failure(cast("BaseException", args.exc_value), abort=True)
-
-
-def install_traceback_hooks() -> None:
-    sys.excepthook = excepthook
-    if "threading" in sys.modules:
-        import threading  # noqa: PLC0415
-
-        threading.excepthook = threading_excepthook
-    else:
-        # threading copies _thread._excepthook into its excepthook at import time
-        _thread._excepthook = threading_excepthook  # noqa: SLF001

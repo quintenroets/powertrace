@@ -19,7 +19,7 @@ Run
 ```python
 import powertrace
 
-powertrace.visualize_traceback()
+powertrace.show_exception()
 ```
 To visualize the current traceback.
 
@@ -27,7 +27,7 @@ Run
 ```python
 import powertrace
 
-powertrace.install_traceback_hooks()
+powertrace.install()
 ```
 In the beginning of your script to enable advanced traceback handling.
 
