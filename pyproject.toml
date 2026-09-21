@@ -1,6 +1,6 @@
 [project]
 name = "powertrace"
-version = "0.2.0"
+version = "0.2.1"
 description = "Improved rich tracebacks"
 authors = [{name = "Quinten Roets", email = "qdr2104@columbia.edu"}]
 license = "MIT"
