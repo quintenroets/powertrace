@@ -5,40 +5,35 @@
 ![Operating system](https://img.shields.io/badge/os-linux%20%7c%20macOS-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
-Detailed stack trace logging and visualization:
-* Rich traceback visualization
-* Also works for headless scripts
-* Stacktrace logging
-* Easily reproducible visualization
+Improved rich tracebacks:
+* Handles exceptions in threads
+* Includes failed subprocess output
+* Can be auto-enabled in every Python process
+* Imports nothing until an exception occurs: over 100x less startup overhead than rich's own hook
 
 ![example](https://github.com/quintenroets/powertrace/blob/main/assets/examples/visualization.png?raw=true)
 
 ## Usage
 
-Run
-```python
-import powertrace
-
-powertrace.show_exception()
-```
-To visualize the current traceback.
-
-Run
 ```python
 import powertrace
 
 powertrace.install()
 ```
-In the beginning of your script to enable advanced traceback handling.
+Call at the top of a script to render its uncaught exceptions.
+
+```python
+import powertrace
+
+try:
+    ...
+except Exception:
+    powertrace.show_exception()
+```
+Renders the exception being handled.
 
 ## Installation
 ```shell
-pip install powertrace
+pip install powertrace        # call install() yourself
+pip install powertrace-hooks  # no need to call install()
 ```
-
-or
-
-```shell
-pip install powertrace-hooks
-```
-Installing powertrace-hooks enables advanced traceback handling in all scripts without requiring the traceback hooks to be installed at the start.

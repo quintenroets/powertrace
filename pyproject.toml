@@ -1,7 +1,7 @@
 [project]
 name = "powertrace"
 version = "0.1.10"
-description = "Detailed stack trace logging and visualization"
+description = "Improved rich tracebacks"
 authors = [{name = "Quinten Roets", email = "qdr2104@columbia.edu"}]
 license = "MIT"
 readme = "README.md"
