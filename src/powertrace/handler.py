@@ -16,10 +16,10 @@ mutex = threading.Lock()
 
 
 def handle(exception: BaseException, *, exit_after: bool = True) -> None:
-    if isinstance(exception, RecursionError):
-        print_exception(exception)
-    else:
-        with mutex:
+    with mutex:
+        if isinstance(exception, RecursionError):
+            print_exception(exception)
+        else:
             report(exception)
             if exit_after and threading.current_thread() is not threading.main_thread():
                 os._exit(1)  # pragma: nocover
