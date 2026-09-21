@@ -22,10 +22,10 @@ def visualize_traceback(*, exit_after: bool = True) -> None:
     """
     Visualize the current traceback.
     """
-    from . import handler  # noqa: PLC0415
-
     exception = sys.exception()
     if exception is not None:
+        from . import handler  # noqa: PLC0415
+
         handler.handle(exception, exit_after=exit_after)
 
 
@@ -42,11 +42,12 @@ def excepthook(
 
 
 def threading_excepthook(args: "threading.ExceptHookArgs") -> None:
-    from typing import cast  # noqa: PLC0415
+    if not issubclass(args.exc_type, KeyboardInterrupt | SystemExit):
+        from typing import cast  # noqa: PLC0415
 
-    from . import handler  # noqa: PLC0415
+        from . import handler  # noqa: PLC0415
 
-    handler.handle(cast("BaseException", args.exc_value))
+        handler.handle(cast("BaseException", args.exc_value))
 
 
 def install_traceback_hooks() -> None:

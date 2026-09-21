@@ -18,7 +18,7 @@ mutex = threading.Lock()
 def handle(exception: BaseException, *, exit_after: bool = True) -> None:
     if isinstance(exception, RecursionError):
         print_exception(exception)
-    elif not isinstance(exception, KeyboardInterrupt | SystemExit):
+    else:
         with mutex:
             report(exception)
             if exit_after and threading.current_thread() is not threading.main_thread():
