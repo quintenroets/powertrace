@@ -16,7 +16,7 @@ from powertrace.reporting import display, report_failure
 def installed_hooks(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(sys, "excepthook", sys.excepthook)
     monkeypatch.setattr(threading, "excepthook", threading.excepthook)
-    powertrace.install_traceback_hooks()
+    powertrace.install()
 
 
 @pytest.mark.usefixtures("installed_hooks")
@@ -49,7 +49,7 @@ def test_hooks_installed_without_threading_import(
     monkeypatch.setattr(sys, "excepthook", sys.excepthook)
     monkeypatch.setattr(_thread, "_excepthook", _thread._excepthook)  # noqa: SLF001
     monkeypatch.delitem(sys.modules, "threading")
-    powertrace.install_traceback_hooks()
+    powertrace.install()
     assert "threading" not in sys.modules
     reimported = importlib.import_module("threading")
     assert reimported.excepthook is powertrace.main.threading_excepthook
@@ -82,12 +82,12 @@ def test_current_exception(mocked_print_rich_exception: MagicMock) -> None:
     try:
         raise ValueError  # noqa: TRY301
     except ValueError:
-        powertrace.visualize_traceback()
+        powertrace.show_exception()
     mocked_print_rich_exception.assert_called_once()
 
 
 def test_without_current_exception(capsys: pytest.CaptureFixture[str]) -> None:
-    powertrace.visualize_traceback()
+    powertrace.show_exception()
     assert not capsys.readouterr().err
 
 
