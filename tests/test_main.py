@@ -9,7 +9,7 @@ import pytest
 from rich.traceback import Traceback
 
 import powertrace
-from powertrace.handler import handle
+from powertrace.reporting import display, report_failure
 
 
 @pytest.fixture
@@ -20,25 +20,27 @@ def installed_hooks(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.mark.usefixtures("installed_hooks")
-@patch("powertrace.handler.handle")
-def test_except_hook(mocked_handle: MagicMock) -> None:
-    sys.excepthook(ValueError, ValueError(), None)
-    mocked_handle.assert_called_once()
+@patch("powertrace.reporting.report_failure")
+def test_except_hook(mocked_report: MagicMock) -> None:
+    error = ValueError()
+    sys.excepthook(ValueError, error, None)
+    mocked_report.assert_called_once_with(error, abort=False)
 
 
 @pytest.mark.usefixtures("installed_hooks")
 def test_interrupt_except_hook(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delitem(sys.modules, "powertrace.handler")
+    monkeypatch.delitem(sys.modules, "powertrace.reporting")
     sys.excepthook(KeyboardInterrupt, KeyboardInterrupt(), None)
-    assert "powertrace.handler" not in sys.modules
+    assert "powertrace.reporting" not in sys.modules
 
 
 @pytest.mark.usefixtures("installed_hooks")
-@patch("powertrace.handler.handle")
-def test_threading_except_hook(mocked_handle: MagicMock) -> None:
-    args = threading.ExceptHookArgs((ValueError, ValueError(), None, None))
+@patch("powertrace.reporting.report_failure")
+def test_threading_except_hook(mocked_report: MagicMock) -> None:
+    error = ValueError()
+    args = threading.ExceptHookArgs((ValueError, error, None, None))
     threading.excepthook(args)
-    mocked_handle.assert_called_once()
+    mocked_report.assert_called_once_with(error, abort=True)
 
 
 def test_hooks_installed_without_threading_import(
@@ -61,7 +63,7 @@ def test_show_locals(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("FULL_TRACEBACK", str(full_traceback).lower())
-    handle(RuntimeError())
+    display(RuntimeError())
     assert mocked_from_exception.call_args.kwargs["show_locals"] == full_traceback
 
 
@@ -70,12 +72,12 @@ def test_exception_recovery(
     mocked_from_exception: MagicMock,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    handle(ValueError())
+    display(ValueError())
     assert mocked_from_exception.call_count == 2  # noqa: PLR2004
     assert "ValueError" in capsys.readouterr().err
 
 
-@patch("powertrace.handler.print_rich_exception")
+@patch("powertrace.reporting.print_rich_exception")
 def test_current_exception(mocked_print_rich_exception: MagicMock) -> None:
     try:
         raise ValueError  # noqa: TRY301
@@ -98,7 +100,7 @@ def test_post_mortem(
 ) -> None:
     monkeypatch.setenv("POWERTRACE_DEBUG", "1")
     monkeypatch.setattr(sys.stdin, "isatty", lambda: interactive)
-    handle(RuntimeError())
+    report_failure(RuntimeError(), abort=False)
     assert mocked_post_mortem.called == interactive
 
 
@@ -106,9 +108,9 @@ class DerivedRecursionError(RecursionError):
     pass
 
 
-@patch("powertrace.handler.print_exception")
+@patch("powertrace.reporting.print_exception")
 def test_exception_subclass_handling(mocked_print_exception: MagicMock) -> None:
-    handle(DerivedRecursionError())
+    display(DerivedRecursionError())
     (exception,) = mocked_print_exception.call_args.args
     assert isinstance(exception, DerivedRecursionError)
 
@@ -118,7 +120,7 @@ process_error = subprocess.CalledProcessError(1, "command", stderr=message.encod
 
 
 def test_subprocess_error(capsys: pytest.CaptureFixture[str]) -> None:
-    handle(process_error)
+    display(process_error)
     assert message in capsys.readouterr().err
 
 
@@ -129,5 +131,5 @@ def test_subprocess_error_chain(capsys: pytest.CaptureFixture[str]) -> None:
         except RuntimeError:
             raise ValueError  # noqa: B904
     except ValueError as error:
-        handle(error)
+        display(error)
     assert message in capsys.readouterr().err

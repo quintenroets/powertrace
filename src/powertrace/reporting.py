@@ -12,27 +12,29 @@ from rich.panel import Panel
 from rich.text import Text
 from rich.traceback import Traceback
 
-mutex = threading.Lock()
+output_mutex = threading.Lock()
+prompt_mutex = threading.Lock()
 
 
-def handle(exception: BaseException, *, exit_after: bool = True) -> None:
-    with mutex:
+def report_failure(exception: BaseException, *, abort: bool) -> None:
+    display(exception)
+    if "POWERTRACE_DEBUG" in os.environ and sys.stdin.isatty():
+        with prompt_mutex:
+            pdb.post_mortem(exception.__traceback__)
+    if abort:
+        os._exit(1)  # pragma: nocover
+
+
+def display(exception: BaseException) -> None:
+    with output_mutex:
         if isinstance(exception, RecursionError):
             print_exception(exception)
         else:
-            report(exception)
-            if exit_after and threading.current_thread() is not threading.main_thread():
-                os._exit(1)  # pragma: nocover
-
-
-def report(exception: BaseException) -> None:
-    try:
-        print_rich_exception(exception)
-    except Exception as error:  # noqa: BLE001
-        print_exception(error)
-        print_exception(exception)
-    if "POWERTRACE_DEBUG" in os.environ and sys.stdin.isatty():
-        pdb.post_mortem(exception.__traceback__)
+            try:
+                print_rich_exception(exception)
+            except Exception as error:  # noqa: BLE001
+                print_exception(error)
+                print_exception(exception)
 
 
 def print_rich_exception(exception: BaseException) -> None:
