@@ -1,5 +1,6 @@
 import _thread
 import importlib
+import os
 import sys
 import threading
 from unittest.mock import MagicMock, patch
@@ -13,6 +14,7 @@ import powertrace
 def installed_hooks(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(sys, "excepthook", sys.excepthook)
     monkeypatch.setattr(threading, "excepthook", threading.excepthook)
+    monkeypatch.setattr(powertrace.hooks, "failed", False)
     powertrace.install()
 
 
@@ -21,7 +23,7 @@ def installed_hooks(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_except_hook(mocked_report: MagicMock) -> None:
     error = ValueError()
     sys.excepthook(ValueError, error, None)
-    mocked_report.assert_called_once_with(error, abort=False)
+    mocked_report.assert_called_once_with(error)
 
 
 @pytest.mark.usefixtures("installed_hooks")
@@ -35,9 +37,19 @@ def test_interrupt_except_hook(monkeypatch: pytest.MonkeyPatch) -> None:
 @patch("powertrace.reporting.report_failure")
 def test_threading_except_hook(mocked_report: MagicMock) -> None:
     error = ValueError()
-    args = threading.ExceptHookArgs((ValueError, error, None, None))
+    thread = threading.Thread(daemon=False)
+    args = threading.ExceptHookArgs((ValueError, error, None, thread))
     threading.excepthook(args)
-    mocked_report.assert_called_once_with(error, abort=True)
+    mocked_report.assert_called_once_with(error)
+    assert powertrace.hooks.failed
+
+
+def test_exit_if_failed(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(powertrace.hooks, "failed", True)
+    mocked_exit = MagicMock()
+    monkeypatch.setattr(os, "_exit", mocked_exit)
+    powertrace.hooks.exit_if_failed()
+    mocked_exit.assert_called_once_with(1)
 
 
 def test_hooks_installed_without_threading_import(
@@ -49,7 +61,7 @@ def test_hooks_installed_without_threading_import(
     powertrace.install()
     assert "threading" not in sys.modules
     reimported = importlib.import_module("threading")
-    assert reimported.excepthook is powertrace.main.threading_excepthook
+    assert reimported.excepthook is powertrace.hooks.threading_excepthook
 
 
 @patch("powertrace.reporting.print_rich_exception")

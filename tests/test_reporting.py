@@ -42,7 +42,7 @@ def test_post_mortem(
 ) -> None:
     monkeypatch.setenv("POWERTRACE_DEBUG", "1")
     monkeypatch.setattr(sys.stdin, "isatty", lambda: interactive)
-    report_failure(RuntimeError(), abort=False)
+    report_failure(RuntimeError())
     assert mocked_post_mortem.called == interactive
 
 

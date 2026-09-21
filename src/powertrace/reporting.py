@@ -16,13 +16,11 @@ output_mutex = threading.Lock()
 prompt_mutex = threading.Lock()
 
 
-def report_failure(exception: BaseException, *, abort: bool) -> None:
+def report_failure(exception: BaseException) -> None:
     display(exception)
     if "POWERTRACE_DEBUG" in os.environ and sys.stdin.isatty():
         with prompt_mutex:
             pdb.post_mortem(exception.__traceback__)
-    if abort:
-        os._exit(1)  # pragma: nocover
 
 
 def display(exception: BaseException) -> None:

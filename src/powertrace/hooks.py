@@ -1,6 +1,8 @@
 """Lazy imports let sitecustomize import this module at negligible cost."""
 
 import _thread
+import atexit
+import os
 import sys
 
 TYPE_CHECKING = False
@@ -8,6 +10,8 @@ TYPE_CHECKING = False
 if TYPE_CHECKING:
     import threading
     from types import TracebackType
+
+failed = False
 
 
 def show_exception() -> None:
@@ -20,6 +24,7 @@ def show_exception() -> None:
 
 def install() -> None:
     sys.excepthook = excepthook
+    atexit.register(exit_if_failed)
     if "threading" in sys.modules:
         import threading  # noqa: PLC0415
 
@@ -38,13 +43,23 @@ def excepthook(
     if not issubclass(type_, KeyboardInterrupt):
         from . import reporting  # noqa: PLC0415
 
-        reporting.report_failure(value, abort=False)
+        reporting.report_failure(value)
 
 
 def threading_excepthook(args: "threading.ExceptHookArgs") -> None:
+    global failed  # noqa: PLW0603
     if not issubclass(args.exc_type, KeyboardInterrupt | SystemExit):
         from typing import cast  # noqa: PLC0415
 
         from . import reporting  # noqa: PLC0415
 
-        reporting.report_failure(cast("BaseException", args.exc_value), abort=True)
+        if not cast("threading.Thread", args.thread).daemon:
+            failed = True
+        reporting.report_failure(cast("BaseException", args.exc_value))
+
+
+def exit_if_failed() -> None:
+    if failed:
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os._exit(1)
