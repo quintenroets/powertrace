@@ -43,7 +43,7 @@ def print_rich_exception(exception: BaseException) -> None:
     except Exception:  # noqa: BLE001
         traceback = Traceback.from_exception(*exc_info, show_locals=False)
     output = Group(traceback, *generate_output_panels(exception))
-    console = Console(force_terminal=True)
+    console = Console(stderr=True, force_terminal=True)
     with console.capture() as capture:
         console.print(Constrain(output, traceback.width))
     sys.stderr.write(capture.get())
