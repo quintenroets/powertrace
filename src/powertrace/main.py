@@ -1,12 +1,4 @@
-"""
-Can be included in sitecustomize files.
-
-In that case, the code below is executed before every script. As a
-result, its runtime performance is critical. The hooks and functions
-below are never called for most scripts. We only import the reporting
-module when it is needed. Lazy imports limit the total overhead of this
-file to the microseconds scale.
-"""
+"""Lazy imports let sitecustomize import this module at negligible cost."""
 
 import _thread
 import sys
